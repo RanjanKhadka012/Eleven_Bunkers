@@ -57,8 +57,23 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
         </button>
       </section>
 
+      <section className="scenario-panel">
+        <div className="scenario-item">
+          <span className="info-label">Catastrophe</span>
+          <strong>{game.catastrophe.name}</strong>
+        </div>
+        <div className="scenario-item">
+          <span className="info-label">Bunker Size</span>
+          <strong>{game.survivorsNeeded} survivors</strong>
+        </div>
+        <div className="scenario-item">
+          <span className="info-label">Bunker Condition</span>
+          <strong>{game.bunker.name}</strong>
+        </div>
+      </section>
+
       {game.survived === null ? (
-        <section className="panel-card gameplay-panel">
+        <section className="round-meta">
           <div className="progress-strip">
             <div className="progress-card">
               <span className="info-label">
@@ -76,61 +91,35 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
             </div>
           </div>
 
-          <div className="phase-box">
-            {currentRound.phase === 'reveal' ? (
-              isHostView ? (
-                <p className="phase-copy phase-copy-tight">
-                  Players are choosing one hidden category to reveal this round.
-                </p>
-              ) : (
-                <>
-                  <p className="phase-copy">
-                    Profession is already visible. Choose one other hidden category on
-                    your own card, then confirm the reveal.
-                  </p>
-                  {currentPlayerHasRevealed ? (
-                    <p className="phase-copy phase-copy-tight">You already revealed this round.</p>
-                  ) : null}
-                </>
-              )
-            ) : isHostView ? (
-              <p className="phase-copy phase-copy-tight">
-                Players are voting now. Elimination happens only after every active player votes.
-              </p>
-            ) : (
-              <>
-                <p className="phase-copy">
-                  Vote for one player. Your vote locks immediately and elimination
-                  happens only after every active player votes.
-                </p>
-                <p className="phase-copy phase-copy-tight">
-                  Use the vote button on a player card below.
-                </p>
-              </>
-            )}
-          </div>
+          <p className="round-copy">
+            {currentRound.phase === 'reveal'
+              ? isHostView
+                ? 'Players are choosing one hidden category to reveal this round.'
+                : currentPlayerHasRevealed
+                  ? 'You already revealed this round.'
+                  : 'Profession is already visible. Choose one other hidden category on your own card.'
+              : isHostView
+                ? 'Players are voting now. Elimination happens only after every active player votes.'
+                : 'Vote for one player. Your vote locks immediately and elimination happens only after every active player votes.'}
+          </p>
 
           {lastEliminated && (
-            <p className="message neutral">
+            <p className="round-copy round-copy-muted">
               Last eliminated: {lastEliminated.name} in round {lastRound.roundNumber}.
             </p>
           )}
         </section>
       ) : (
-        <section className="panel-card gameplay-panel">
-          <div className="round-header">
-            <div>
-              <p className="eyebrow">Final scoring</p>
-              <h2>{game.survived ? 'Humanity survives' : 'Total failure'}</h2>
-            </div>
+        <section className="round-meta">
+          <div className="result-inline">
             <span className={`phase-pill ${game.survived ? 'phase-pill-success' : 'phase-pill-danger'}`}>
               {game.finalScore} / {game.finalThreshold}
             </span>
+            <p className="round-copy">
+              {game.survived ? 'Humanity survives.' : 'Total failure.'} All surviving cards are
+              now fully visible.
+            </p>
           </div>
-          <p className="phase-copy">
-            All surviving cards are now fully visible. Hidden points are revealed only
-            at the end.
-          </p>
         </section>
       )}
 

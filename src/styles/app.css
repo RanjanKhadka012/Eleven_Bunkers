@@ -96,6 +96,13 @@ input {
   width: min(1180px, calc(100% - 1.25rem));
 }
 
+.host-page {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1rem;
+  width: min(980px, calc(100% - 1.25rem));
+}
+
 .narrow-page {
   width: min(640px, calc(100% - 1rem));
   min-height: 100vh;
@@ -425,9 +432,11 @@ button:disabled {
 }
 
 .game-topbar,
+.host-topbar,
 .round-header,
 .cards-header,
-.player-card-header {
+.player-card-header,
+.host-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -499,6 +508,101 @@ button:disabled {
   display: block;
   margin-top: 0.3rem;
   font-size: 1.02rem;
+}
+
+.scenario-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.95rem 1rem;
+}
+
+.scenario-item strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: #ffffff;
+}
+
+.host-hero,
+.host-scenario-panel,
+.host-narration-panel {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(12px);
+}
+
+.host-topbar {
+  align-items: center;
+}
+
+.host-hero {
+  padding: 1.5rem;
+}
+
+.host-hero h1 {
+  max-width: 12ch;
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
+  line-height: 0.92;
+}
+
+.host-scenario-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+}
+
+.host-scenario-item strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+.host-narration-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+}
+
+.host-copy,
+.host-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.host-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 280px);
+  gap: 0.8rem;
+  justify-content: start;
+}
+
+.round-meta {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.round-copy {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.round-copy-muted {
+  color: var(--muted);
+}
+
+.result-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .vote-grid {
@@ -698,8 +802,8 @@ button:disabled {
     font-size: 0.92rem;
   }
 
-  .game-summary,
   .game-topbar,
+  .host-topbar,
   .round-header,
   .cards-header,
   .player-card-header {
@@ -707,6 +811,19 @@ button:disabled {
   }
 
   .progress-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .host-page {
+    width: min(100%, calc(100% - 0.9rem));
+  }
+
+  .host-scenario-panel,
+  .host-actions {
     grid-template-columns: 1fr;
   }
 

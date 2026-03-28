@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import GameScreen from './components/GameScreen'
+import HostGameScreen from './components/HostGameScreen'
 import HomeScreen from './components/HomeScreen'
 import JoinScreen from './components/JoinScreen'
 import LobbyScreen from './components/LobbyScreen'
@@ -242,13 +243,17 @@ function App() {
       )}
 
       {screen === 'game' && lobby?.game && session && (
-        <GameScreen
-          lobby={lobby}
-          session={session}
-          onRevealCategory={handleRevealCategory}
-          onSubmitVote={handleSubmitVote}
-          onLeaveGame={resetHome}
-        />
+        session.isHost ? (
+          <HostGameScreen lobby={lobby} onLeaveGame={resetHome} />
+        ) : (
+          <GameScreen
+            lobby={lobby}
+            session={session}
+            onRevealCategory={handleRevealCategory}
+            onSubmitVote={handleSubmitVote}
+            onLeaveGame={resetHome}
+          />
+        )
       )}
     </div>
   )
