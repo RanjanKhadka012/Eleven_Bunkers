@@ -1,17 +1,57 @@
+/**
+ * Bunker Game - Main Application Styles
+ * 
+ * Design System Overview:
+ * - Dark theme with organic green/olive accent colors
+ * - Glassmorphism: semi-transparent panels with blur effects
+ * - Responsive design using CSS Grid and clamp()
+ * - Animation and micro-interactions for engagement
+ * 
+ * Color Palette:
+ * - Backgrounds: Very dark gray/green (#0e1210, #131916)
+ * - Text: Light cream (#e6ecdf)
+ * - Accents: Acid green (#a6c36f) for highlights
+ * - Warnings: Warm gold (#d3a85d)
+ * - Danger: Muted coral (#b96b61)
+ * 
+ * Key Components:
+ * - Hero sections on home screen
+ * - Panel cards for forms and lobbies
+ * - Ambient background effects for depth
+ * - Responsive grid layouts
+ * - Button and form styling
+ * 
+ * Mobile-First Approach:
+ * - All widths use min() for responsive sizing
+ * - Touch-friendly button/input sizes
+ * - Vertical stacking on narrow screens
+ */
+
 :root {
+  /* Background color palette */
   --bg-0: #0e1210;
   --bg-1: #131916;
   --bg-2: #1a221d;
+  
+  /* Panel styling */
   --panel: rgba(20, 28, 23, 0.82);
   --panel-strong: rgba(24, 34, 28, 0.92);
+  
+  /* Divider and border lines */
   --line: rgba(184, 204, 164, 0.14);
   --line-strong: rgba(184, 204, 164, 0.28);
+  
+  /* Text colors */
   --text: #e6ecdf;
   --muted: rgba(230, 236, 223, 0.68);
-  --acid: #a6c36f;
-  --acid-soft: rgba(166, 195, 111, 0.14);
-  --warning: #d3a85d;
-  --danger: #b96b61;
+  
+  /* Accent colors */
+  --acid: #a6c36f;  /* Bright green for highlights and active states */
+  --acid-soft: rgba(166, 195, 111, 0.14);  /* Acid green with transparency */
+  --warning: #d3a85d;  /* Gold for warnings */
+  --danger: #b96b61;  /* Coral for errors */
+  
+  /* Apply gradient background and set default text color */
   color: var(--text);
   background:
     radial-gradient(circle at top left, rgba(166, 195, 111, 0.14), transparent 24%),
@@ -43,12 +83,14 @@ input {
   min-height: 100vh;
 }
 
+/* Main application container */
 .app-shell {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
 }
 
+/* Ambient background blur effects for visual depth */
 .ambient {
   position: fixed;
   width: 18rem;
@@ -71,6 +113,7 @@ input {
   background: rgba(115, 128, 106, 0.16);
 }
 
+/* Page container with responsive width */
 .page {
   position: relative;
   z-index: 1;
@@ -79,6 +122,7 @@ input {
   padding: 1rem 0 2rem;
 }
 
+/* Home page: full viewport with centered content */
 .page-home {
   min-height: 100vh;
   display: flex;
@@ -89,6 +133,7 @@ input {
   text-align: center;
 }
 
+/* Narrow page: for forms and lobby (smaller width) */
 .narrow-page {
   width: min(640px, calc(100% - 1rem));
   min-height: 100vh;
@@ -99,6 +144,7 @@ input {
   padding-bottom: 1.5rem;
 }
 
+/* Shared card styling with glassmorphism effect */
 .hero-card,
 .action-card,
 .panel-card,
@@ -111,6 +157,7 @@ input {
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
 }
 
+/* Hero card on home page (no border/shadow) */
 .hero-card {
   width: min(100%, 36rem);
   padding: 0.25rem 0 0;
@@ -120,6 +167,7 @@ input {
   box-shadow: none;
 }
 
+/* Eyebrow label styling (all caps, small) */
 .eyebrow {
   margin: 0 0 0.7rem;
   font-size: 0.72rem;
@@ -147,6 +195,7 @@ h2 {
   letter-spacing: -0.03em;
 }
 
+/* Body copy and message text */
 .hero-copy,
 .action-card p,
 .message,
@@ -161,6 +210,7 @@ h2 {
   font-size: 0.98rem;
 }
 
+/* Grid layouts for multiple items */
 .hero-pills,
 .button-row,
 .button-stack,
@@ -175,6 +225,7 @@ h2 {
   margin-top: 1.25rem;
 }
 
+/* Pill-shaped badges */
 .hero-pills span,
 .player-badge {
   border-radius: 999px;
@@ -186,6 +237,7 @@ h2 {
   color: var(--text);
 }
 
+/* Action buttons grid (Host/Join) */
 .action-grid {
   display: grid;
   gap: 1rem;
@@ -202,6 +254,7 @@ h2 {
   width: min(100%, 34rem);
 }
 
+/* Home page action cards (transparent) */
 .page-home .action-card {
   border: 0;
   background: transparent;
@@ -220,6 +273,7 @@ h2 {
   background: transparent;
 }
 
+/* Tips card at bottom of home */
 .tips-card {
   display: grid;
   gap: 0.75rem;
@@ -259,6 +313,7 @@ h2 {
   text-align: center;
 }
 
+/* Info label styling (uppercase, muted) */
 .info-label {
   color: var(--muted);
   font-size: 0.78rem;
@@ -266,6 +321,7 @@ h2 {
   letter-spacing: 0.12em;
 }
 
+/* Form field: label + input */
 .field {
   display: grid;
   gap: 0.45rem;
@@ -278,6 +334,7 @@ h2 {
   font-size: 0.94rem;
 }
 
+/* Form inputs */
 input {
   width: 100%;
   border: 1px solid var(--line);
@@ -292,12 +349,11 @@ input::placeholder {
   color: rgba(230, 236, 223, 0.32);
 }
 
+/* Input focus state with accent highlight */
 input:focus {
   border-color: var(--line-strong);
   box-shadow: 0 0 0 3px var(--acid-soft);
 }
-
-button {
   width: 100%;
   max-width: 25rem;
   border-radius: 16px;
