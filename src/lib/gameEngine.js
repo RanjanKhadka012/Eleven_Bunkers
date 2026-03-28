@@ -8,6 +8,8 @@ import {
 } from './gameData'
 import { pickScenarioForCatastrophe } from './scenarioNarratives'
 
+export const DISCUSSION_DURATION_MS = 90 * 1000
+
 function randomItem(items) {
   return items[Math.floor(Math.random() * items.length)]
 }
@@ -29,6 +31,7 @@ function buildRoundState(roundIndex) {
     revealedBy: [],
     votes: {},
     eliminatedPlayerId: null,
+    discussionEndsAt: null,
   }
 }
 
@@ -146,7 +149,30 @@ export function revealForPlayer(lobby, playerId, category) {
       currentRound: {
         ...lobby.game.currentRound,
         revealedBy,
-        phase: everyoneRevealed ? 'voting' : 'reveal',
+        phase: everyoneRevealed ? 'discussion' : 'reveal',
+        discussionEndsAt: everyoneRevealed ? Date.now() + DISCUSSION_DURATION_MS : null,
+      },
+    },
+  }
+}
+
+export function advanceDiscussionPhase(lobby, now = Date.now()) {
+  if (!lobby?.game || lobby.game.currentRound.phase !== 'discussion') {
+    return lobby
+  }
+
+  const { discussionEndsAt } = lobby.game.currentRound
+  if (!discussionEndsAt || now < discussionEndsAt) {
+    return lobby
+  }
+
+  return {
+    ...lobby,
+    game: {
+      ...lobby.game,
+      currentRound: {
+        ...lobby.game.currentRound,
+        phase: 'voting',
       },
     },
   }
