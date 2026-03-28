@@ -5,6 +5,13 @@ const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4Tlv
 const defaultModelId = 'eleven_multilingual_v2'
 const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || 'http://localhost:5000/api/tts'
 let speechQueue = Promise.resolve()
+const eliminationFollowUps = [
+  'Time to reveal new categories.',
+  'Let us see who else will fail to earn a place in the bunker.',
+  'The bunker is smaller now. Choose your next reveal carefully.',
+  'The pressure is rising. Another decision is coming.',
+  'Survival just got harsher. Prepare for the next reveal.',
+]
 
 function enqueueSpeech(task) {
   const nextTask = speechQueue.catch(() => {}).then(task)
@@ -93,12 +100,28 @@ export function buildOutcomeNarration(game) {
   }
 
   if (game.scenario) {
-    return game.survived ? game.scenario.endingWin : game.scenario.endingLoss
+    return [
+      game.survived
+        ? 'The chances of survival are high.'
+        : 'The chances of survival are low.',
+      game.survived ? game.scenario.endingWin : game.scenario.endingLoss,
+    ]
+      .filter(Boolean)
+      .join(' ')
   }
 
   return game.survived
-    ? 'Humanity survives. The bunker held together when it mattered.'
-    : 'The last defenses failed. Humanity fades into silence.'
+    ? 'The chances of survival are high. Humanity survives. The bunker held together when it mattered.'
+    : 'The chances of survival are low. The last defenses failed. Humanity fades into silence.'
+}
+
+export function buildEliminationNarration(playerName, roundNumber = 1) {
+  if (!playerName) {
+    return ''
+  }
+
+  const followUp = eliminationFollowUps[(roundNumber - 1) % eliminationFollowUps.length]
+  return `Player ${playerName} has been eliminated. ${followUp}`
 }
 
 export async function playOpeningNarration(game, options = {}) {
@@ -116,6 +139,16 @@ export async function playOutcomeNarration(game, options = {}) {
 
   if (!text) {
     throw new Error('No outcome narration available to play.')
+  }
+
+  return playSpeech(text, options)
+}
+
+export async function playEliminationNarration(playerName, roundNumber, options = {}) {
+  const text = buildEliminationNarration(playerName, roundNumber)
+
+  if (!text) {
+    throw new Error('No elimination narration available to play.')
   }
 
   return playSpeech(text, options)

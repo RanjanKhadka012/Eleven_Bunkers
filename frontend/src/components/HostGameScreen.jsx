@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   buildScenarioNarration,
+  playEliminationNarration,
   playOpeningNarration,
   playOutcomeNarration,
   playSpeech,
@@ -8,10 +9,15 @@ import {
 
 function HostGameScreen({ lobby, onLeaveGame }) {
   const { game } = lobby
+  const currentRound = game.currentRound
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [ttsError, setTtsError] = useState('')
   const [hasPlayedOpening, setHasPlayedOpening] = useState(false)
   const openingStartedRef = useRef(false)
+  const previousPhaseRef = useRef(currentRound.phase)
+  const lastNarratedEliminationRoundRef = useRef(null)
+  const hasNarratedOutcomeRef = useRef(false)
+  const [discussionNow, setDiscussionNow] = useState(Date.now())
 
   const speak = async (action) => {
     setTtsError('')
@@ -42,6 +48,73 @@ function HostGameScreen({ lobby, onLeaveGame }) {
     return undefined
   }, [game, hasPlayedOpening])
 
+  useEffect(() => {
+    if (currentRound.phase !== 'discussion' || !currentRound.discussionEndsAt) {
+      setDiscussionNow(Date.now())
+      return undefined
+    }
+
+    const tick = () => setDiscussionNow(Date.now())
+    tick()
+    const intervalId = window.setInterval(tick, 1000)
+    return () => window.clearInterval(intervalId)
+  }, [currentRound.phase, currentRound.discussionEndsAt])
+
+  useEffect(() => {
+    const previousPhase = previousPhaseRef.current
+
+    if (previousPhase === 'discussion' && currentRound.phase === 'voting') {
+      speak(() =>
+        playSpeech('Time is up. It is time to make your decision and cast your vote.'),
+      )
+    }
+
+    previousPhaseRef.current = currentRound.phase
+  }, [currentRound.phase])
+
+  useEffect(() => {
+    const latestRound = game.completedRounds.at(-1)
+    if (!latestRound?.eliminatedPlayerId) {
+      return undefined
+    }
+
+    if (lastNarratedEliminationRoundRef.current === latestRound.roundNumber) {
+      return undefined
+    }
+
+    const eliminatedPlayer = game.players.find(
+      (player) => player.id === latestRound.eliminatedPlayerId,
+    )
+
+    if (!eliminatedPlayer) {
+      return undefined
+    }
+
+    lastNarratedEliminationRoundRef.current = latestRound.roundNumber
+    speak(() => playEliminationNarration(eliminatedPlayer.name, latestRound.roundNumber))
+    return undefined
+  }, [game.completedRounds, game.players])
+
+  useEffect(() => {
+    if (game.survived === null || hasNarratedOutcomeRef.current) {
+      return undefined
+    }
+
+    hasNarratedOutcomeRef.current = true
+    speak(() => playOutcomeNarration(game))
+    return undefined
+  }, [game])
+
+  const discussionSecondsLeft =
+    currentRound.phase === 'discussion' && currentRound.discussionEndsAt
+      ? Math.max(0, Math.ceil((currentRound.discussionEndsAt - discussionNow) / 1000))
+      : 0
+
+  const formattedDiscussionTime = `${String(Math.floor(discussionSecondsLeft / 60)).padStart(
+    2,
+    '0',
+  )}:${String(discussionSecondsLeft % 60).padStart(2, '0')}`
+
   return (
     <main className="page host-page">
       <section className="host-topbar">
@@ -56,6 +129,13 @@ function HostGameScreen({ lobby, onLeaveGame }) {
         <h1>{game.catastrophe.name}</h1>
         {game.scenario?.label && <p className="eyebrow">Scenario: {game.scenario.label}</p>}
       </section>
+
+      {currentRound.phase === 'discussion' && (
+        <section className="discussion-timer host-discussion-timer">
+          <span className="info-label">Discussion Timer</span>
+          <strong>{formattedDiscussionTime}</strong>
+        </section>
+      )}
 
       <section className="host-scenario-panel">
         <div className="host-scenario-item">

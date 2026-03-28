@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CATEGORY_LABELS, REVEAL_ORDER, getVisibleCards } from '../lib/gameEngine'
 
 const CARD_OUTLINE_COLORS = [
@@ -26,6 +26,10 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     lastRound && game.players.find((player) => player.id === lastRound.eliminatedPlayerId)
   const [selectedReveal, setSelectedReveal] = useState('')
   const [pendingVote, setPendingVote] = useState('')
+  const [eliminationNotice, setEliminationNotice] = useState(null)
+  const [timeUpNotice, setTimeUpNotice] = useState(false)
+  const [discussionNow, setDiscussionNow] = useState(Date.now())
+  const previousPhaseRef = useRef(currentRound.phase)
 
   const revealChoices = useMemo(() => {
     if (!currentPlayer) {
@@ -66,6 +70,61 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     }
   }, [currentRound.phase, currentVote, currentRound.roundNumber])
 
+  useEffect(() => {
+    if (currentRound.phase !== 'discussion' || !currentRound.discussionEndsAt) {
+      setDiscussionNow(Date.now())
+      return undefined
+    }
+
+    const tick = () => setDiscussionNow(Date.now())
+    tick()
+    const intervalId = window.setInterval(tick, 1000)
+    return () => window.clearInterval(intervalId)
+  }, [currentRound.phase, currentRound.discussionEndsAt])
+
+  useEffect(() => {
+    if (!lastRound || !lastEliminated) {
+      return undefined
+    }
+
+    setEliminationNotice({
+      roundNumber: lastRound.roundNumber,
+      playerName: lastEliminated.name,
+    })
+
+    const timeoutId = window.setTimeout(() => {
+      setEliminationNotice((current) =>
+        current?.roundNumber === lastRound.roundNumber ? null : current,
+      )
+    }, 3200)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [lastRound?.roundNumber, lastEliminated?.name])
+
+  useEffect(() => {
+    const previousPhase = previousPhaseRef.current
+
+    if (previousPhase === 'discussion' && currentRound.phase === 'voting') {
+      setTimeUpNotice(true)
+      const timeoutId = window.setTimeout(() => setTimeUpNotice(false), 2400)
+      previousPhaseRef.current = currentRound.phase
+      return () => window.clearTimeout(timeoutId)
+    }
+
+    setTimeUpNotice(false)
+    previousPhaseRef.current = currentRound.phase
+    return undefined
+  }, [currentRound.phase])
+
+  const discussionSecondsLeft =
+    currentRound.phase === 'discussion' && currentRound.discussionEndsAt
+      ? Math.max(0, Math.ceil((currentRound.discussionEndsAt - discussionNow) / 1000))
+      : 0
+
+  const formattedDiscussionTime = `${String(Math.floor(discussionSecondsLeft / 60)).padStart(
+    2,
+    '0',
+  )}:${String(discussionSecondsLeft % 60).padStart(2, '0')}`
   const handleConfirmReveal = () => {
     if (!canConfirmReveal) {
       return
@@ -77,8 +136,32 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
   return (
     <main className="page game-page">
-      <section className="game-topbar game-topbar-minimal">
-        <div>
+      {timeUpNotice && (
+        <div className="announcement-overlay" role="status" aria-live="polite">
+          <div className="announcement-card announcement-card-warning">
+            <p className="eyebrow">Discussion Closed</p>
+            <h2>Time is up</h2>
+            <p className="round-copy round-copy-muted">
+              It is time to make your decision and cast your vote.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {eliminationNotice && (
+        <div className="announcement-overlay" role="status" aria-live="polite">
+          <div className="announcement-card">
+            <p className="eyebrow">Eliminated</p>
+            <h2>{eliminationNotice.playerName}</h2>
+            <p className="round-copy round-copy-muted">
+              {eliminationNotice.playerName} has been eliminated from the bunker.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <section className="game-topbar game-topbar-minimal game-topbar-centered">
+        <div className="game-round-heading">
           <p className="eyebrow">Round</p>
           <h2>
             {game.survived !== null ? 'Final result' : `${currentRound.roundNumber} of ${game.totalRounds}`}
@@ -88,6 +171,13 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
           Leave
         </button>
       </section>
+
+      {currentRound.phase === 'discussion' && (
+        <section className="discussion-timer">
+          <span className="info-label">Discussion Timer</span>
+          <strong>{formattedDiscussionTime}</strong>
+        </section>
+      )}
 
       <section className="scenario-panel">
         {game.scenario?.label && (
@@ -136,6 +226,8 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                 : currentPlayerHasRevealed
                   ? 'You already revealed this round.'
                   : ''
+              : currentRound.phase === 'discussion'
+                ? 'Discuss the revealed information. Voting begins when the timer ends.'
               : isHostView
                 ? 'Players are voting now. Elimination happens only after every active player votes.'
                 : 'Select a player, then confirm your vote. Once confirmed, it locks for the round.'}
@@ -212,6 +304,8 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
                 <div className="category-list">
                   {REVEAL_ORDER.map((category) => {
+                    const isHiddenCategory = !visibleCards[category]
+                    const isRevealedCategory = player.revealedCategories.includes(category)
                     const isSelectable =
                       canSelectRevealCategory &&
                       category !== 'profession' &&
@@ -231,8 +325,16 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                         }}
                         disabled={!isSelectable}
                       >
-                        <span>{CATEGORY_LABELS[category]}</span>
-                        <strong>{visibleCards[category] ? visibleCards[category].name : 'Hidden'}</strong>
+                        <span className={isRevealedCategory ? 'category-label-revealed' : ''}>
+                          {CATEGORY_LABELS[category]}
+                        </span>
+                        <strong
+                          className={`${isHiddenCategory ? 'category-value-hidden' : ''} ${
+                            isRevealedCategory ? 'category-value-revealed' : ''
+                          }`}
+                        >
+                          {visibleCards[category] ? visibleCards[category].name : 'Hidden'}
+                        </strong>
                       </button>
                     )
                   })}

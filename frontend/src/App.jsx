@@ -4,7 +4,12 @@ import HostGameScreen from './components/HostGameScreen'
 import HomeScreen from './components/HomeScreen'
 import JoinScreen from './components/JoinScreen'
 import LobbyScreen from './components/LobbyScreen'
-import { castVoteForPlayer, revealForPlayer, startLobbyGame } from './lib/gameEngine'
+import {
+  advanceDiscussionPhase,
+  castVoteForPlayer,
+  revealForPlayer,
+  startLobbyGame,
+} from './lib/gameEngine'
 import {
   MAX_PLAYERS,
   MIN_PLAYERS,
@@ -29,7 +34,12 @@ function App() {
     }
 
     const syncLobby = () => {
-      const nextLobby = readLobbies()[session.code]
+      const storedLobby = readLobbies()[session.code]
+      const nextLobby = storedLobby ? advanceDiscussionPhase(storedLobby) : storedLobby
+
+      if (storedLobby && nextLobby !== storedLobby) {
+        saveLobby(nextLobby)
+      }
 
       if (!nextLobby) {
         setMessage('This lobby is no longer available.')
