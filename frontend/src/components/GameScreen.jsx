@@ -163,13 +163,8 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
       <section className="game-topbar game-topbar-minimal game-topbar-centered">
         <div className="game-round-heading">
           <p className="eyebrow">Round</p>
-          <h2>
-            {game.survived !== null ? 'Final result' : `${currentRound.roundNumber} of ${game.totalRounds}`}
-          </h2>
+          <h2>{game.survived !== null ? 'Final result' : currentRound.roundNumber}</h2>
         </div>
-        <button className="ghost-button compact-button" onClick={onLeaveGame}>
-          Leave
-        </button>
       </section>
 
       {currentRound.phase === 'discussion' && (
@@ -388,6 +383,12 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
           })}
         </div>
       </section>
+
+      <div className="page-footer-action">
+        <button className="ghost-button compact-button" onClick={onLeaveGame}>
+          Leave
+        </button>
+      </div>
     </main>
   )
 }
