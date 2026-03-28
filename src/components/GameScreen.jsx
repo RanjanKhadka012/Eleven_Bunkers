@@ -77,16 +77,11 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
   return (
     <main className="page game-page">
-      <section className="game-topbar game-topbar-minimal">
-        <div>
+      <section className="game-topbar game-topbar-minimal game-topbar-centered">
+        <div className="game-round-heading">
           <p className="eyebrow">Round</p>
-          <h2>
-            {game.survived !== null ? 'Final result' : `${currentRound.roundNumber} of ${game.totalRounds}`}
-          </h2>
+          <h2>{game.survived !== null ? 'Final result' : currentRound.roundNumber}</h2>
         </div>
-        <button className="ghost-button compact-button" onClick={onLeaveGame}>
-          Leave
-        </button>
       </section>
 
       <section className="scenario-panel">
@@ -106,23 +101,6 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
       {game.survived === null ? (
         <section className="round-meta">
-          <div className="progress-strip">
-            <div className="progress-card">
-              <span className="info-label">
-                {currentRound.phase === 'reveal' ? 'Reveals submitted' : 'Votes submitted'}
-              </span>
-              <strong>
-                {currentRound.phase === 'reveal'
-                  ? `${currentRound.revealedBy.length}/${activePlayers.length}`
-                  : `${votesSubmitted}/${activePlayers.length}`}
-              </strong>
-            </div>
-            <div className="progress-card">
-              <span className="info-label">Eliminations left</span>
-              <strong>{Math.max(0, activePlayers.length - game.survivorsNeeded)}</strong>
-            </div>
-          </div>
-
           <p className="round-copy">
             {currentRound.phase === 'reveal'
               ? isHostView
@@ -206,6 +184,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
                 <div className="category-list">
                   {REVEAL_ORDER.map((category) => {
+                    const isHiddenCategory = !visibleCards[category]
                     const isSelectable =
                       canSelectRevealCategory &&
                       category !== 'profession' &&
@@ -226,7 +205,9 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                         disabled={!isSelectable}
                       >
                         <span>{CATEGORY_LABELS[category]}</span>
-                        <strong>{visibleCards[category] ? visibleCards[category].name : 'Hidden'}</strong>
+                        <strong className={isHiddenCategory ? 'category-value-hidden' : ''}>
+                          {visibleCards[category] ? visibleCards[category].name : 'Hidden'}
+                        </strong>
                       </button>
                     )
                   })}
@@ -280,6 +261,12 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
           })}
         </div>
       </section>
+
+      <div className="page-footer-action">
+        <button className="ghost-button compact-button" onClick={onLeaveGame}>
+          Leave
+        </button>
+      </div>
     </main>
   )
 }
