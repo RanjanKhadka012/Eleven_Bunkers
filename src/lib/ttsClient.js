@@ -1,24 +1,20 @@
 // ElevenLabs text-to-speech helper for the host screen.
-// Expects VITE_ELEVENLABS_API_KEY (and optional VITE_ELEVENLABS_VOICE_ID) to be set in .env.local.
+// Calls a serverless proxy (api/tts) so secrets stay server-side.
 
-const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY
 const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' // Rachel
 const defaultModelId = 'eleven_multilingual_v2'
+const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || '/api/tts'
 
 async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaultModelId) {
-  if (!apiKey) {
-    throw new Error('Missing VITE_ELEVENLABS_API_KEY')
-  }
-
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+  const response = await fetch(ttsEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'xi-api-key': apiKey,
     },
     body: JSON.stringify({
       text,
-      model_id: modelId,
+      voiceId,
+      modelId,
     }),
   })
 
