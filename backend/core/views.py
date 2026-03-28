@@ -34,7 +34,8 @@ from .serializers import (
     UserSerializer, GameLogSerializer
 )
 from .elevenlabs_utils import (
-    text_to_speech, get_card_narration, get_player_summary_narration, get_game_announcement
+    text_to_speech, get_card_narration, get_player_summary_narration, 
+    get_game_announcement, get_opening_narration, get_ending_narration
 )
 
 
@@ -255,6 +256,11 @@ class GameSessionViewSet(viewsets.ModelViewSet):
         Only the host (game creator) can start the game.
         Transitions game from 'setup' phase to 'reveal' phase.
         
+        Game Initialization:
+        - Randomly selects a catastrophe scenario (7 possible apocalypse scenarios)
+        - Randomly selects a bunker condition (positive or negative)
+        - Calculates survival threshold: (survivors_needed × 18) + catastrophe_mod + bunker_mod
+        
         Card Dealing:
         - Each player gets 1 random card of each type (8 total)
         - Each player gets 2 random special condition cards
@@ -275,6 +281,24 @@ class GameSessionViewSet(viewsets.ModelViewSet):
                 {"detail": "Game already started"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Select random catastrophe scenario
+        catastrophes = Catastrophe.objects.all()
+        if catastrophes.exists():
+            game_session.catastrophe = catastrophes.order_by('?').first()
+        
+        # Select random bunker condition
+        bunkers = Bunker.objects.all()
+        if bunkers.exists():
+            game_session.bunker = bunkers.order_by('?').first()
+        
+        # Set narration text (same for all games)
+        game_session.opening_narration = "The world you once knew… is gone. Civilization crumbled the moment the catastrophe struck. Now, you're not fighting to win—you're fighting to survive. Every decision matters. Every person counts. Below ground, in the darkness of your bunker, you face impossible choices. Trust is a luxury you might not afford. Resources are finite. Time is running out. Above, the surface is death. Down here, in the depths, your group must learn to work together—or fall apart. Welcome to the Bunker. Welcome to the end of the world. Let's see if you have what it takes to survive."
+        game_session.ending_narration = "In the end, survival was never guaranteed. What happened in that bunker will define not just your group, but what humanity becomes. Some faced impossible choices and held their values. Others made hard sacrifices for the greater good. And some... some learned that not everyone can be saved. The world above is still dark. The threats still loom. But what you've learned—about yourselves, about each other, about what truly matters when everything else is stripped away—that will echo for generations. This is how humanity endures. Not always with honor. Not always with unity. But through moments of terrible choice, difficult compromise, and the understanding that survival is never won alone. The bunker may have protected your bodies. But your story will protect human memory itself."
+        
+        # Calculate survival threshold
+        game_session.calculate_threshold()
+        game_session.save()
         
         # Deal cards to each player
         players = game_session.players.all()
@@ -307,7 +331,7 @@ class GameSessionViewSet(viewsets.ModelViewSet):
             game_session=game_session,
             event_type='phase_change',
             player=request.user,
-            message="Game started! Cards dealt."
+            message=f"Game started! Scenario: {game_session.catastrophe.name}. Cards dealt. Threshold: {game_session.final_threshold}"
         )
         
         return Response(

@@ -20,14 +20,23 @@ Usage:
 """
 
 import os
-from elevenlabs import ElevenLabs
 from django.conf import settings
 import logging
+
+try:
+    from elevenlabs import ElevenLabs
+    ELEVENLABS_AVAILABLE = True
+except ImportError:
+    ELEVENLABS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
 # Initialize ElevenLabs SDK client with API key from environment
-client = ElevenLabs(api_key=os.getenv('ELEVENLABS_API_KEY'))
+# Will be None if elevenlabs package is not installed
+if ELEVENLABS_AVAILABLE:
+    client = ElevenLabs(api_key=os.getenv('ELEVENLABS_API_KEY'))
+else:
+    client = None
 
 
 def text_to_speech(text, voice_id='21m00Tcm4TlvDq8ikWAM', output_path=None):
@@ -43,7 +52,7 @@ def text_to_speech(text, voice_id='21m00Tcm4TlvDq8ikWAM', output_path=None):
         bytes or str: Audio bytes if output_path is None, otherwise file path
     
     Raises:
-        Exception: If API call fails
+        Exception: If API call fails or elevenlabs not installed
     
     Example:
         >>> narration = "Doctor. Expert in medicine and surgery."
@@ -51,6 +60,9 @@ def text_to_speech(text, voice_id='21m00Tcm4TlvDq8ikWAM', output_path=None):
         >>> # Save to file
         >>> text_to_speech(narration, output_path="card_audio.mp3")
     """
+    if not ELEVENLABS_AVAILABLE or client is None:
+        raise ImportError("ElevenLabs package not installed. Install with: pip install elevenlabs")
+    
     try:
         # Call ElevenLabs API to generate speech
         audio = client.generate(
@@ -156,6 +168,61 @@ def get_game_announcement(game_session):
     return announcement
 
 
+def get_opening_narration(game_session):
+    """
+    Generate opening narration for game start
+    
+    Returns the dramatic opening narration that sets the tone for the apocalypse scenario.
+    This is read aloud at game start to immerse players in the narrative.
+    
+    Args:
+        game_session (GameSession): The game session with catastrophe and narration set
+    
+    Returns:
+        str: Opening narration text with apocalypse scenario context
+    
+    Example Output:
+        "The world you once knew… is gone. Civilization crumbled the moment..."
+    """
+    if game_session.opening_narration:
+        return game_session.opening_narration
+    else:
+        # Fallback if narration not set
+        return f"The catastrophe has struck. {game_session.catastrophe.name}. The world above is destroyed. You are in the bunker now. Survive or perish together."
+
+
+def get_ending_narration(game_session):
+    """
+    Generate ending narration for game conclusion
+    
+    Returns the reflective ending narration played after final scoring.
+    Summarizes the group's survival status and reflects on the experience.
+    
+    Args:
+        game_session (GameSession): The game session with survival status and narration set
+    
+    Returns:
+        str: Ending narration text reflecting on the game outcome
+    
+    Example Output:
+        "In the end, survival was never guaranteed..."
+    """
+    if game_session.ending_narration:
+        ending = game_session.ending_narration
+        # Add survival outcome to narration
+        if game_session.check_survival():
+            ending += " Your group survived the bunker. Against all odds, you made it through."
+        else:
+            ending += " Your group did not survive. The bunker could not save you all."
+        return ending
+    else:
+        # Fallback if narration not set
+        if game_session.check_survival():
+            return "Your group survived! You made it through the catastrophe."
+        else:
+            return "Your group did not survive the catastrophe. Better luck next time."
+
+
 def available_voices():
     """
     Fetch list of available voices from ElevenLabs
@@ -165,7 +232,7 @@ def available_voices():
     
     Returns:
         list: List of voice objects with properties like name, id, labels, etc.
-              Empty list if API fails
+              Empty list if API fails or elevenlabs not installed
     
     Voice Example:
         {
@@ -175,6 +242,10 @@ def available_voices():
             ...
         }
     """
+    if not ELEVENLABS_AVAILABLE or client is None:
+        logger.warning("ElevenLabs not available - returning empty voice list")
+        return []
+    
     try:
         voices = client.voices.get_all()
         return voices

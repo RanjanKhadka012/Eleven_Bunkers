@@ -164,6 +164,10 @@ class GameSession(models.Model):
     current_phase = models.CharField(max_length=20, choices=PHASE_CHOICES, default='setup')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     
+    opening_narration = models.TextField(blank=True, help_text="Dramatic opening narration text read at game start")
+    ending_narration = models.TextField(blank=True, help_text="Reflective ending narration text read at game conclusion")
+    narration_audio_url = models.URLField(blank=True, help_text="URL to generated opening narration audio file")
+    
     base_threshold = models.IntegerField(default=0)  # survivors_needed × 18
     final_threshold = models.IntegerField(default=0)  # base + modifiers
     final_score = models.IntegerField(null=True, blank=True)  # Total score of remaining players

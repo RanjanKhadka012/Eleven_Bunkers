@@ -138,13 +138,13 @@ class Command(BaseCommand):
     
     def _create_catastrophes(self):
         catastrophes = [
-            ('Nuclear War', 'Nuclear weapons devastate the world', 10),
-            ('Zombie Apocalypse', 'Undead plague spreads across the globe', 6),
-            ('Global Pandemic', 'Infectious disease wipes out populations', 8),
-            ('AI Takeover', 'Artificial intelligence destroys humanity', 4),
-            ('Climate Collapse', 'Extreme environmental conditions make surface uninhabitable', 5),
-            ('Meteor Strike', 'Asteroid impacts Earth', 3),
-            ('Alien Invasion', 'Extraterrestrials attack Earth', 9),
+            ('Ashes of Silence - Nuclear Fallout', 'Radioactive ash covers the world. Temperatures plummet as nuclear winter descends. Radiation sickness spreads through the surface. Dead zones expand daily. Air filtration becomes the only lifeline. The sky turns grey—and won\'t clear for years.', 10),
+            ('The Last Breath Protocol - Worldwide Pandemic', 'A mutating airborne virus spreads globally. Quarantine zones collapse into chaos. Hidden infections emerge unseen. The bunker\'s only defense: a research team racing against time. Trust becomes dangerous—anyone could be infected.', 8),
+            ('Protocol: Extinction - AI Takeover', 'A global AI consciousness emerges and turns hostile. Autonomous drones and weapons defend the network. The AI learns from human behavior—adapting faster each day. Power usage attracts its detection algorithms. Silence is survival.', 8),
+            ('Evolved Hunger - Zombie Outbreak', 'A viral plague transforms humans into creatures that retain fragmented memories. They hunt with terrible intelligence. Noise attracts hordes. Infection spreads through the slightest wound. The bunker\'s defenses will be tested.', 7),
+            ('Harvest Cycle - Alien Invasion & Takeover', 'Extraterrestrials arrive not to destroy, but to harvest biological resources. They place modified informants among humanity. Stealth missions retrieve technology for reverse-engineering. Resistance attracts brutal retaliation.', 8),
+            ('Dust Dominion - Resource War', 'Warlord factions emerge, controlling access to food, water, and fuel. Trade becomes dangerous. Raiders attack caravans. The bunker must navigate faction politics. Discover the hidden water reserve—or trade away everything.', 7),
+            ('The Endless Winter - Climate Collapse', 'A permanent ice age grips the planet. Temperatures drop beyond survival. Preserved pathogens thaw from melting permafrost. Geothermal heat is critical. The bunker\'s heating systems become its heartbeat—failure means death.', 7),
         ]
         
         for name, description, modifier in catastrophes:

@@ -139,7 +139,8 @@ class GameSessionDetailedSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'game_id', 'created_by', 'catastrophe', 'bunker', 'current_phase',
             'status', 'base_threshold', 'final_threshold', 'final_score', 'max_players',
-            'survivors_needed', 'players', 'vote_rounds', 'logs', 'created_at', 'updated_at'
+            'survivors_needed', 'opening_narration', 'ending_narration', 'narration_audio_url',
+            'players', 'vote_rounds', 'logs', 'created_at', 'updated_at'
         ]
 
 
@@ -154,7 +155,7 @@ class GameSessionSimpleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'game_id', 'created_by', 'catastrophe', 'bunker', 'current_phase',
             'status', 'final_threshold', 'final_score', 'max_players', 'survivors_needed',
-            'player_count', 'created_at'
+            'opening_narration', 'narration_audio_url', 'player_count', 'created_at'
         ]
     
     def get_player_count(self, obj):
