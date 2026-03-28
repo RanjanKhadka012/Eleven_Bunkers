@@ -1,5 +1,0 @@
-Django==6.0.3
-djangorestframework==3.17.1
-django-cors-headers==4.9.0
-elevenlabs==2.40.0
-python-dotenv==1.2.2
