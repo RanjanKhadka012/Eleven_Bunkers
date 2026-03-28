@@ -27,15 +27,12 @@
 
 html {
   background: var(--bg-0);
-  min-height: 100%;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100%;
   background: transparent;
-  overflow-x: hidden;
 }
 
 button,
@@ -45,13 +42,15 @@ input {
 
 #root {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .app-shell {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 .ambient {
@@ -492,22 +491,6 @@ button:disabled {
   align-items: end;
 }
 
-.game-topbar-centered {
-  justify-content: center;
-  text-align: center;
-}
-
-.game-round-heading {
-  display: grid;
-  justify-items: center;
-}
-
-.page-footer-action {
-  display: flex;
-  justify-content: center;
-  padding-top: 0.5rem;
-}
-
 .phase-pill {
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -636,6 +619,14 @@ button:disabled {
   line-height: 1.5;
 }
 
+.round-copy-success {
+  color: #b9e28c;
+}
+
+.round-copy-danger {
+  color: #e0a39a;
+}
+
 .round-copy-muted {
   color: var(--muted);
 }
@@ -746,6 +737,11 @@ button:disabled {
 .category-row-selected {
   border-color: rgba(166, 195, 111, 0.42);
   background: rgba(166, 195, 111, 0.12);
+}
+
+.category-row .category-label-revealed,
+.category-row .category-value-revealed {
+  color: #b9e28c;
 }
 
 .player-card {

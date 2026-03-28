@@ -6,6 +6,7 @@ import {
   REVEAL_ORDER,
   THRESHOLD_RULES,
 } from './gameData'
+import { pickScenarioForCatastrophe } from './scenarioNarratives'
 
 function randomItem(items) {
   return items[Math.floor(Math.random() * items.length)]
@@ -61,6 +62,7 @@ function drawCard(category) {
 
 export function startLobbyGame(lobby) {
   const catastrophe = randomItem(CATASTROPHES)
+  const scenario = pickScenarioForCatastrophe(catastrophe.name)
   const bunker = randomItem(BUNKERS)
   const survivorsNeeded = getSurvivorTarget(lobby.players.length)
   const { baseThreshold, finalThreshold } = calculateThreshold(
@@ -92,6 +94,7 @@ export function startLobbyGame(lobby) {
     game: {
       catastrophe,
       bunker,
+      scenario,
       survivorsNeeded,
       baseThreshold,
       finalThreshold,

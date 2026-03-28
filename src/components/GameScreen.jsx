@@ -26,6 +26,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     lastRound && game.players.find((player) => player.id === lastRound.eliminatedPlayerId)
   const [selectedReveal, setSelectedReveal] = useState('')
   const [pendingVote, setPendingVote] = useState('')
+  const [eliminationNotice, setEliminationNotice] = useState(null)
 
   const revealChoices = useMemo(() => {
     if (!currentPlayer) {
@@ -66,6 +67,25 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     }
   }, [currentRound.phase, currentVote, currentRound.roundNumber])
 
+  useEffect(() => {
+    if (!lastRound || !lastEliminated) {
+      return undefined
+    }
+
+    setEliminationNotice({
+      roundNumber: lastRound.roundNumber,
+      playerName: lastEliminated.name,
+    })
+
+    const timeoutId = window.setTimeout(() => {
+      setEliminationNotice((current) =>
+        current?.roundNumber === lastRound.roundNumber ? null : current,
+      )
+    }, 3200)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [lastRound?.roundNumber, lastEliminated?.name])
+
   const handleConfirmReveal = () => {
     if (!canConfirmReveal) {
       return
@@ -77,14 +97,20 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
   return (
     <main className="page game-page">
-      <section className="game-topbar game-topbar-minimal game-topbar-centered">
-        <div className="game-round-heading">
+      <section className="game-topbar game-topbar-minimal">
+        <div>
           <p className="eyebrow">Round</p>
           <h2>{game.survived !== null ? 'Final result' : currentRound.roundNumber}</h2>
         </div>
       </section>
 
       <section className="scenario-panel">
+        {game.scenario?.label && (
+          <div className="scenario-item">
+            <span className="info-label">Scenario</span>
+            <strong>{game.scenario.label}</strong>
+          </div>
+        )}
         <div className="scenario-item">
           <span className="info-label">Catastrophe</span>
           <strong>{game.catastrophe.name}</strong>
@@ -125,9 +151,9 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
             <span className={`phase-pill ${game.survived ? 'phase-pill-success' : 'phase-pill-danger'}`}>
               {game.finalScore} / {game.finalThreshold}
             </span>
-            <p className="round-copy">
-              {game.survived ? 'Humanity survives.' : 'Total failure.'} All surviving cards are
-              now fully visible.
+            <p className={`round-copy ${game.survived ? 'round-copy-success' : 'round-copy-danger'}`}>
+              {game.survived ? 'The chances of survival are high.' : 'The chances of survival are low.'}{' '}
+              All surviving cards are now fully visible.
             </p>
           </div>
         </section>
@@ -136,11 +162,6 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
       <section className="cards-section">
         <div className="cards-header">
           <p className="eyebrow">Players</p>
-          {currentRound.phase === 'voting' && game.survived === null ? (
-            <span className="cards-helper">
-              {votesSubmitted}/{activePlayers.length} votes in
-            </span>
-          ) : null}
         </div>
 
         <div className="cards-strip">
@@ -184,7 +205,6 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
                 <div className="category-list">
                   {REVEAL_ORDER.map((category) => {
-                    const isHiddenCategory = !visibleCards[category]
                     const isSelectable =
                       canSelectRevealCategory &&
                       category !== 'profession' &&
@@ -205,9 +225,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                         disabled={!isSelectable}
                       >
                         <span>{CATEGORY_LABELS[category]}</span>
-                        <strong className={isHiddenCategory ? 'category-value-hidden' : ''}>
-                          {visibleCards[category] ? visibleCards[category].name : 'Hidden'}
-                        </strong>
+                        <strong>{visibleCards[category] ? visibleCards[category].name : 'Hidden'}</strong>
                       </button>
                     )
                   })}
