@@ -28,14 +28,21 @@
 html {
   background: var(--bg-0);
   min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100%;
+  width: 100%;
+  max-width: 100%;
   background: transparent;
-  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
 }
 
 button,
@@ -45,12 +52,18 @@ input {
 
 #root {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .app-shell {
   position: relative;
   min-height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overflow-y: hidden;
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
@@ -508,6 +521,31 @@ button:disabled {
   padding-top: 0.5rem;
 }
 
+.announcement-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: start center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.announcement-card {
+  width: min(100%, 28rem);
+  border: 1px solid rgba(185, 107, 97, 0.28);
+  border-radius: 20px;
+  background: rgba(27, 16, 15, 0.92);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  padding: 1rem 1.1rem;
+  text-align: center;
+}
+
+.announcement-card h2 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: #ffffff;
+}
+
 .phase-pill {
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -636,6 +674,14 @@ button:disabled {
   line-height: 1.5;
 }
 
+.round-copy-success {
+  color: #b9e28c;
+}
+
+.round-copy-danger {
+  color: #e0a39a;
+}
+
 .round-copy-muted {
   color: var(--muted);
 }
@@ -746,6 +792,11 @@ button:disabled {
 .category-row-selected {
   border-color: rgba(166, 195, 111, 0.42);
   background: rgba(166, 195, 111, 0.12);
+}
+
+.category-row .category-label-revealed,
+.category-row .category-value-revealed {
+  color: #b9e28c;
 }
 
 .player-card {
