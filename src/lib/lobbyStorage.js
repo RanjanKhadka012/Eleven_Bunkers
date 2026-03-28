@@ -15,6 +15,13 @@ export function writeLobbies(lobbies) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lobbies))
 }
 
+export function saveLobby(lobby) {
+  const lobbies = readLobbies()
+  lobbies[lobby.code] = lobby
+  writeLobbies(lobbies)
+  return lobby
+}
+
 function generateCode() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   return Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('')
@@ -33,13 +40,8 @@ export function createLobby() {
     code,
     status: 'waiting',
     hostId,
-    players: [
-      {
-        id: hostId,
-        name: 'Host',
-        isHost: true,
-      },
-    ],
+    hostName: 'Host',
+    players: [],
   }
 
   lobbies[code] = lobby

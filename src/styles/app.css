@@ -89,6 +89,13 @@ input {
   text-align: center;
 }
 
+.game-page {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1rem;
+  width: min(1180px, calc(100% - 1.25rem));
+}
+
 .narrow-page {
   width: min(640px, calc(100% - 1rem));
   min-height: 100vh;
@@ -200,6 +207,10 @@ h2 {
 
 .panel-card {
   width: min(100%, 34rem);
+}
+
+.game-page .panel-card {
+  width: 100%;
 }
 
 .page-home .action-card {
@@ -413,6 +424,176 @@ button:disabled {
   background: rgba(255, 255, 255, 0.025);
 }
 
+.game-topbar,
+.round-header,
+.cards-header,
+.player-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.phase-box,
+.player-card,
+.category-row {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.phase-box,
+.player-card {
+  padding: 0.95rem;
+}
+
+.gameplay-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.game-topbar-minimal {
+  margin-bottom: 0.1rem;
+  align-items: end;
+}
+
+.phase-pill {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  padding: 0.55rem 0.85rem;
+  text-transform: capitalize;
+}
+
+.phase-pill-success {
+  background: rgba(166, 195, 111, 0.12);
+}
+
+.phase-pill-danger {
+  background: rgba(185, 107, 97, 0.16);
+}
+
+.phase-copy {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.phase-copy-tight {
+  margin-bottom: 0;
+}
+
+.progress-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.progress-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.85rem 0.95rem;
+}
+
+.progress-card strong {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 1.02rem;
+}
+
+.vote-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vote-button {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.vote-button-selected {
+  border-color: rgba(166, 195, 111, 0.4);
+  background: rgba(166, 195, 111, 0.12);
+}
+
+.vote-button small,
+.player-card-header p,
+.category-row span {
+  color: var(--muted);
+}
+
+.cards-section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cards-header {
+  align-items: center;
+}
+
+.cards-helper {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.cards-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(272px, 312px);
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.15rem 0 0.5rem;
+  scroll-snap-type: x proximity;
+}
+
+.player-card-eliminated {
+  opacity: 0.6;
+}
+
+.category-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.category-row {
+  padding: 0.7rem 0.8rem;
+}
+
+.category-row span {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.player-card {
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16);
+  scroll-snap-align: start;
+  min-height: 100%;
+}
+
+.player-card-header strong {
+  font-size: 1rem;
+}
+
+.player-card-header p {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+}
+
+.card-vote-button {
+  margin-top: 0.8rem;
+  max-width: none;
+  padding: 0.8rem 0.9rem;
+}
+
+.compact-button {
+  width: auto;
+  max-width: none;
+}
+
 @media (min-width: 760px) {
   .page-home {
     padding-top: 0;
@@ -431,6 +612,14 @@ button:disabled {
 
   .button-row {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .vote-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cards-strip {
+    grid-auto-columns: minmax(290px, 330px);
   }
 }
 
@@ -464,5 +653,26 @@ button:disabled {
 
   .hero-copy {
     font-size: 0.92rem;
+  }
+
+  .game-summary,
+  .game-topbar,
+  .round-header,
+  .cards-header,
+  .player-card-header {
+    display: grid;
+  }
+
+  .progress-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .game-page {
+    width: min(100%, calc(100% - 0.9rem));
+  }
+
+  .cards-strip {
+    grid-auto-columns: 86vw;
+    gap: 0.8rem;
   }
 }

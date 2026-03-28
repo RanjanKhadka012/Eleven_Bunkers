@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
+import GameScreen from './components/GameScreen'
 import HomeScreen from './components/HomeScreen'
 import JoinScreen from './components/JoinScreen'
 import LobbyScreen from './components/LobbyScreen'
+import { castVoteForPlayer, revealForPlayer, startLobbyGame } from './lib/gameEngine'
 import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   createLobby,
   readLobbies,
+  saveLobby,
   writeLobbies,
 } from './lib/lobbyStorage'
 import './styles/app.css'
@@ -34,6 +37,10 @@ function App() {
         return
       }
 
+      if (nextLobby.status === 'in_progress' || nextLobby.status === 'completed') {
+        setScreen('game')
+      }
+
       setSession((current) => ({
         ...current,
         lobby: nextLobby,
@@ -54,15 +61,15 @@ function App() {
       return ''
     }
 
-    if (lobby.status === 'started') {
-      return 'Game started. Move players into the first reveal phase.'
+    if (lobby.status !== 'waiting') {
+      return 'Game is ready. Players will move into their cards and reveal rounds.'
     }
 
     if (playerCount < MIN_PLAYERS) {
-      return `Waiting for at least ${MIN_PLAYERS} players.`
+      return `Waiting for at least ${MIN_PLAYERS} players to join.`
     }
 
-    return 'Lobby is ready. Host can start the game.'
+    return 'Lobby is ready. Host can start the game as moderator.'
   }, [lobby, playerCount])
 
   const resetHome = () => {
@@ -150,19 +157,12 @@ function App() {
       return
     }
 
-    const lobbies = readLobbies()
-    const updatedLobby = {
-      ...lobby,
-      status: 'started',
-    }
-
-    lobbies[lobby.code] = updatedLobby
-    writeLobbies(lobbies)
-
+    const updatedLobby = saveLobby(startLobbyGame(lobby))
     setSession((current) => ({
       ...current,
       lobby: updatedLobby,
     }))
+    setScreen('game')
   }
 
   const handleCopyCode = async () => {
@@ -177,6 +177,30 @@ function App() {
     } catch {
       setMessage('Copy failed. Share the code manually.')
     }
+  }
+
+  const handleRevealCategory = () => {
+    if (!lobby || !session?.playerId) {
+      return
+    }
+
+    const updatedLobby = saveLobby(revealForPlayer(lobby, session.playerId))
+    setSession((current) => ({
+      ...current,
+      lobby: updatedLobby,
+    }))
+  }
+
+  const handleSubmitVote = (targetId) => {
+    if (!lobby || !session?.playerId) {
+      return
+    }
+
+    const updatedLobby = saveLobby(castVoteForPlayer(lobby, session.playerId, targetId))
+    setSession((current) => ({
+      ...current,
+      lobby: updatedLobby,
+    }))
   }
 
   return (
@@ -214,6 +238,16 @@ function App() {
           onCopyCode={handleCopyCode}
           onStartGame={handleStartGame}
           onLeaveLobby={resetHome}
+        />
+      )}
+
+      {screen === 'game' && lobby?.game && session && (
+        <GameScreen
+          lobby={lobby}
+          session={session}
+          onRevealCategory={handleRevealCategory}
+          onSubmitVote={handleSubmitVote}
+          onLeaveGame={resetHome}
         />
       )}
     </div>
