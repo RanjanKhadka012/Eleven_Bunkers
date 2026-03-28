@@ -129,7 +129,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                 ? 'Players are choosing one hidden category to reveal this round.'
                 : currentPlayerHasRevealed
                   ? 'You already revealed this round.'
-                  : 'Profession is already visible. Choose one other hidden category on your own card.'
+                  : ''
               : isHostView
                 ? 'Players are voting now. Elimination happens only after every active player votes.'
                 : 'Select a player, then confirm your vote. Once confirmed, it locks for the round.'}
