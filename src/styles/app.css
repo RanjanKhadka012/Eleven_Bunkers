@@ -674,6 +674,10 @@ button:disabled {
   cursor: default;
 }
 
+.category-row:disabled {
+  opacity: 1;
+}
+
 .category-row span {
   display: block;
   margin-bottom: 0.25rem;
@@ -699,10 +703,14 @@ button:disabled {
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16);
   scroll-snap-align: start;
   min-height: 100%;
+  border-color: color-mix(in srgb, var(--card-accent, var(--line-strong)) 55%, var(--line) 45%);
 }
 
 .player-card-own {
-  border-color: rgba(166, 195, 111, 0.24);
+  border-color: var(--card-accent, rgba(166, 195, 111, 0.42));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--card-accent, var(--acid)) 35%, transparent),
+    0 14px 32px rgba(0, 0, 0, 0.16);
 }
 
 .player-card-header strong {

@@ -1,5 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CATEGORY_LABELS, REVEAL_ORDER, getVisibleCards } from '../lib/gameEngine'
+
+const CARD_OUTLINE_COLORS = [
+  '#a6c36f',
+  '#d3a85d',
+  '#7cb8ff',
+  '#d584a7',
+  '#66c1b7',
+  '#caa2ff',
+  '#e28d6f',
+  '#8ecb6b',
+]
 
 function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGame }) {
   const { game } = lobby
@@ -14,6 +25,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
   const lastEliminated =
     lastRound && game.players.find((player) => player.id === lastRound.eliminatedPlayerId)
   const [selectedReveal, setSelectedReveal] = useState('')
+  const [pendingVote, setPendingVote] = useState('')
 
   const revealChoices = useMemo(() => {
     if (!currentPlayer) {
@@ -26,6 +38,20 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     )
   }, [currentPlayer])
 
+  const orderedPlayers = useMemo(() => {
+    if (session.isHost) {
+      return game.players
+    }
+
+    const ownIndex = game.players.findIndex((player) => player.id === session.playerId)
+
+    if (ownIndex <= 0) {
+      return game.players
+    }
+
+    return [...game.players.slice(ownIndex), ...game.players.slice(0, ownIndex)]
+  }, [game.players, session.isHost, session.playerId])
+
   const canConfirmReveal =
     currentRound.phase === 'reveal' &&
     !isHostView &&
@@ -33,6 +59,12 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     !currentPlayer.isEliminated &&
     !currentPlayerHasRevealed &&
     Boolean(selectedReveal)
+
+  useEffect(() => {
+    if (currentRound.phase !== 'voting' || currentVote) {
+      setPendingVote('')
+    }
+  }, [currentRound.phase, currentVote, currentRound.roundNumber])
 
   const handleConfirmReveal = () => {
     if (!canConfirmReveal) {
@@ -100,7 +132,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                   : 'Profession is already visible. Choose one other hidden category on your own card.'
               : isHostView
                 ? 'Players are voting now. Elimination happens only after every active player votes.'
-                : 'Vote for one player. Your vote locks immediately and elimination happens only after every active player votes.'}
+                : 'Select a player, then confirm your vote. Once confirmed, it locks for the round.'}
           </p>
 
           {lastEliminated && (
@@ -134,7 +166,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
         </div>
 
         <div className="cards-strip">
-          {game.players.map((player) => {
+          {orderedPlayers.map((player, index) => {
             const visibleCards = getVisibleCards(
               isHostView ? null : session.playerId,
               player,
@@ -162,6 +194,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                 className={`player-card ${player.isEliminated ? 'player-card-eliminated' : ''} ${
                   isOwnCard ? 'player-card-own' : ''
                 }`}
+                style={{ '--card-accent': CARD_OUTLINE_COLORS[index % CARD_OUTLINE_COLORS.length] }}
               >
                 <div className="player-card-header">
                   <div>
@@ -215,11 +248,31 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
 
                 {canVoteForPlayer && (
                   <button
-                    className={`vote-button card-vote-button ${currentVote === player.id ? 'vote-button-selected' : ''}`}
-                    onClick={() => onSubmitVote(player.id)}
+                    className={`vote-button card-vote-button ${
+                      currentVote === player.id || pendingVote === player.id
+                        ? 'vote-button-selected'
+                        : ''
+                    }`}
+                    onClick={() => {
+                      if (currentVote) {
+                        return
+                      }
+
+                      if (pendingVote === player.id) {
+                        onSubmitVote(player.id)
+                        setPendingVote('')
+                        return
+                      }
+
+                      setPendingVote(player.id)
+                    }}
                     disabled={Boolean(currentVote)}
                   >
-                    {currentVote === player.id ? 'Vote submitted' : `Vote ${player.name}`}
+                    {currentVote === player.id
+                      ? 'Vote submitted'
+                      : pendingVote === player.id
+                        ? `Confirm vote for ${player.name}`
+                        : `Vote ${player.name}`}
                   </button>
                 )}
               </article>
