@@ -1,5 +1,43 @@
+import { useEffect, useState } from 'react'
+import {
+  buildScenarioNarration,
+  playOpeningNarration,
+  playOutcomeNarration,
+  playSpeech,
+} from '../lib/ttsClient'
+
 function HostGameScreen({ lobby, onLeaveGame }) {
   const { game } = lobby
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [ttsError, setTtsError] = useState('')
+  const [hasPlayedOpening, setHasPlayedOpening] = useState(false)
+
+  const speak = async (action) => {
+    setTtsError('')
+    setIsSpeaking(true)
+
+    try {
+      await action()
+    } catch (error) {
+      setTtsError(error?.message || 'Unable to play narration')
+    } finally {
+      setIsSpeaking(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!game || hasPlayedOpening) {
+      return undefined
+    }
+
+    const run = async () => {
+      await speak(() => playOpeningNarration(game))
+      setHasPlayedOpening(true)
+    }
+
+    run()
+    return undefined
+  }, [game, hasPlayedOpening])
 
   return (
     <main className="page host-page">
@@ -13,6 +51,7 @@ function HostGameScreen({ lobby, onLeaveGame }) {
       <section className="host-hero">
         <p className="eyebrow">Catastrophe</p>
         <h1>{game.catastrophe.name}</h1>
+        {game.scenario?.label && <p className="eyebrow">Scenario: {game.scenario.label}</p>}
       </section>
 
       <section className="host-scenario-panel">
@@ -40,9 +79,34 @@ function HostGameScreen({ lobby, onLeaveGame }) {
         </p>
 
         <div className="host-actions">
-          <button className="primary-button" type="button">
-            Narrate Scenario
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => speak(() => playOpeningNarration(game))}
+            disabled={isSpeaking}
+          >
+            Play Opening
           </button>
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => speak(() => playSpeech(buildScenarioNarration(game)))}
+            disabled={isSpeaking}
+          >
+            Play Scenario Summary
+          </button>
+          {game.survived !== null && (
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => speak(() => playOutcomeNarration(game))}
+              disabled={isSpeaking}
+            >
+              Play Outcome
+            </button>
+          )}
+          {isSpeaking && <span className="host-note">Generating audio…</span>}
+          {ttsError && <span className="host-note host-note-error">{ttsError}</span>}
         </div>
 
         <p className="host-note">

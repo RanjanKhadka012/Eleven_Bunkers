@@ -90,6 +90,12 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
       </section>
 
       <section className="scenario-panel">
+        {game.scenario?.label && (
+          <div className="scenario-item">
+            <span className="info-label">Scenario</span>
+            <strong>{game.scenario.label}</strong>
+          </div>
+        )}
         <div className="scenario-item">
           <span className="info-label">Catastrophe</span>
           <strong>{game.catastrophe.name}</strong>

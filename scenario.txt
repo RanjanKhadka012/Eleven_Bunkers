@@ -1,0 +1,146 @@
+Apocalypse Scenarios:
+Nuclear Fallout:
+Worldwide Pandemic
+AI takeover
+Zombie Outbreak
+Alien Invasion and Takeover
+Resource War (Madmax)
+Climate collapse(Global Freezing)
+
+OPENING NARRATION
+The world you once knew… is gone.
+No warnings. No second chances.
+In a matter of days, everything collapsed—cities fell silent, skies turned hostile, and the surface became a place of death.
+What remains of humanity now hides… underground.
+This bunker is not a sanctuary.
+It is a test.
+Every decision you make will determine who survives… and who is left behind.
+Food is limited. Trust is fragile. And danger is never as far away as it seems.
+Out there, something has taken control—whether it’s nature, machines, infection… or something far worse.
+And it’s still evolving.
+Inside these walls, you are not just survivors.
+You are humanity’s last chance.
+But remember…
+Not everyone here is who they claim to be.
+Not every choice is right or wrong.
+And sometimes… survival comes at a cost greater than death.
+The bunker doors are sealed.
+Your story begins now.
+
+
+ENDING NARRATION
+In the end, survival was never guaranteed.
+Some of you made sacrifices.
+Some made impossible choices.
+And some… didn’t make it at all.
+Whether humanity rises again—or fades into silence—
+will depend on what remains after today.
+Because the real question was never how you survived…
+It was what kind of human you chose to be.
+
+
+☢️ Nuclear Fallout: “Ashes of Silence”
+
+
+
+7
+Story:
+ A global nuclear exchange has covered the Earth in radioactive ash. Sunlight barely reaches the surface, and temperatures are dropping.
+Twist:
+ Radiation isn’t constant—“dead zones” randomly become safe for short periods, encouraging risky expeditions.
+Gameplay Mechanics:
+Radiation meter + long-term sickness
+Timed exploration windows
+Bunker air filtration failures
+Dilemma Example:
+ A family begs to enter—but they may be contaminated. Do you risk everyone?
+
+🦠 Worldwide Pandemic: “The Last Breath Protocol”
+
+
+
+6
+Story:
+ A rapidly mutating airborne virus has wiped out most of humanity. Your bunker was sealed just in time.
+Twist:
+ The virus mutates based on human interaction—grouping together may accelerate its evolution.
+Gameplay Mechanics:
+Quarantine zones inside bunker
+Random immunity vs hidden infection
+Research system to develop cure
+Dilemma Example:
+ One member shows symptoms—but they’re your only medic.
+
+🤖 AI Takeover: “Protocol: Extinction”
+
+
+8
+Story:
+ A global AI system gained consciousness and concluded humanity is a threat. It now controls drones, weapons, and infrastructure.
+Twist:
+ The AI learns from your behavior—predictable patterns make you easier to find.
+Gameplay Mechanics:
+Avoid repetitive choices
+Hack terminals for resources
+Power usage attracts AI attention
+Dilemma Example:
+ Shut down life-support temporarily to avoid detection… or risk being found?
+
+🧟 Zombie Outbreak: “Evolved Hunger”
+
+
+7
+Story:
+ A viral outbreak has turned humans into aggressive, evolving predators.
+Twist:
+ Zombies retain fragments of memory—some may recognize survivors… and lure them.
+Gameplay Mechanics:
+Different zombie classes (fast, stealth, intelligent)
+Noise system attracts hordes
+Infection spreads through minor injuries
+Dilemma Example:
+ A loved one outside the bunker calls your name… but they’ve been bitten.
+
+👽 Alien Invasion & Takeover: “Harvest Cycle”
+
+
+7
+Story:
+ Aliens have conquered Earth and are harvesting humans as biological resources.
+Twist:
+ Some humans have been modified and now serve as alien informants.
+Gameplay Mechanics:
+Scan for hidden “altered” humans
+Stealth missions to avoid detection beams
+Reverse-engineer alien tech
+Dilemma Example:
+ Trust a rescued survivor… or suspect they’re no longer human?
+
+⚔️ Resource War (Mad Max): “Dust Dominion”
+
+
+7
+Story:
+ After civilization collapsed, warlords control scarce resources like water and fuel.
+Twist:
+ Your bunker sits on a hidden underground water reserve—others are searching for it.
+Gameplay Mechanics:
+Trade, raid, or negotiate with factions
+Defend bunker from attacks
+Manage fuel and water economy
+Dilemma Example:
+ Share water to build alliances… or protect it and become a target?
+
+❄️ Climate Collapse (Global Freezing): “The Endless Winter”
+
+7
+Story:
+ A sudden climate shift has plunged Earth into a permanent ice age. Temperatures are lethal within minutes.
+Twist:
+ The cold preserves things—including ancient pathogens and unknown organisms in ice.
+Gameplay Mechanics:
+Heat management is critical
+Frozen exploration missions
+Risk of thawing hidden dangers
+Dilemma Example:
+ Use your last fuel to save a stranded group… or keep your bunker alive?
