@@ -72,6 +72,7 @@ function HostGameScreen({ lobby, onLeaveGame }) {
     previousPhaseRef.current = currentRound.phase
   }, [currentRound.phase])
 
+  // Narrate each elimination exactly once; keyed on completed rounds length.
   useEffect(() => {
     const latestRound = game.completedRounds.at(-1)
     if (!latestRound?.eliminatedPlayerId) {
@@ -93,7 +94,7 @@ function HostGameScreen({ lobby, onLeaveGame }) {
     lastNarratedEliminationRoundRef.current = latestRound.roundNumber
     speak(() => playEliminationNarration(eliminatedPlayer.name, latestRound.roundNumber))
     return undefined
-  }, [game.completedRounds, game.players])
+  }, [game.completedRounds.length, game.players])
 
   useEffect(() => {
     if (game.survived === null || hasNarratedOutcomeRef.current) {

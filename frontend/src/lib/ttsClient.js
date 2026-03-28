@@ -1,7 +1,7 @@
 // ElevenLabs text-to-speech helper for the host screen.
 // Calls a backend proxy so secrets stay server-side.
 
-const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' // Rachel
+const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'NOpBlnGInO9m6vDvFkFC'
 const defaultModelId = 'eleven_multilingual_v2'
 const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || 'http://localhost:5000/api/tts'
 let speechQueue = Promise.resolve()
