@@ -4,6 +4,13 @@
 const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' // Rachel
 const defaultModelId = 'eleven_multilingual_v2'
 const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || '/api/tts'
+let speechQueue = Promise.resolve()
+
+function enqueueSpeech(task) {
+  const nextTask = speechQueue.catch(() => {}).then(task)
+  speechQueue = nextTask.catch(() => {})
+  return nextTask
+}
 
 async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaultModelId) {
   const response = await fetch(ttsEndpoint, {
@@ -28,19 +35,21 @@ async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaul
 }
 
 export async function playSpeech(text, options = {}) {
-  const { voiceId = defaultVoiceId, modelId = defaultModelId } = options
-  const blob = await synthesizeToBlob(text, voiceId, modelId)
-  const url = URL.createObjectURL(blob)
+  return enqueueSpeech(async () => {
+    const { voiceId = defaultVoiceId, modelId = defaultModelId } = options
+    const blob = await synthesizeToBlob(text, voiceId, modelId)
+    const url = URL.createObjectURL(blob)
 
-  try {
-    const audio = new Audio(url)
-    await audio.play()
-    audio.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true })
-    return audio
-  } catch (error) {
-    URL.revokeObjectURL(url)
-    throw error
-  }
+    try {
+      const audio = new Audio(url)
+      await audio.play()
+      audio.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true })
+      return audio
+    } catch (error) {
+      URL.revokeObjectURL(url)
+      throw error
+    }
+  })
 }
 
 export function buildScenarioNarration(game) {
