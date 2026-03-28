@@ -1,10 +1,10 @@
-import nuclearRaw from '../../scenarios/narratives/Nuclear_Fallout.txt?raw'
-import pandemicRaw from '../../scenarios/narratives/Worldwide_Pandemic.txt?raw'
-import aiRaw from '../../scenarios/narratives/AI_Takeover.txt?raw'
-import zombieRaw from '../../scenarios/narratives/Zombie_Outbreak.txt?raw'
-import alienRaw from '../../scenarios/narratives/Alien_Invasion.txt?raw'
-import resourceRaw from '../../scenarios/narratives/Resource_War.txt?raw'
-import climateRaw from '../../scenarios/narratives/Climate_Collapse.txt?raw'
+import nuclearRaw from '../scenarios/narratives/Nuclear_Fallout.txt?raw'
+import pandemicRaw from '../scenarios/narratives/Worldwide_Pandemic.txt?raw'
+import aiRaw from '../scenarios/narratives/AI_Takeover.txt?raw'
+import zombieRaw from '../scenarios/narratives/Zombie_Outbreak.txt?raw'
+import alienRaw from '../scenarios/narratives/Alien_Invasion.txt?raw'
+import resourceRaw from '../scenarios/narratives/Resource_War.txt?raw'
+import climateRaw from '../scenarios/narratives/Climate_Collapse.txt?raw'
 
 function parseNarrative(raw) {
   const sections = { opening: '', explanation: '', endingWin: '', endingLoss: '' }

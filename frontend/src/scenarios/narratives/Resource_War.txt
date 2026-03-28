@@ -1,0 +1,12 @@
+Opening:
+Above, engines and gunfire carve the dust. Warlords trade water for loyalty and bullets for land. Your bunker sits on the last secret: a deep, hidden well.
+
+Scenario Explanation:
+Story: Civilization shattered into factions fighting over water and fuel.
+Twist: Your bunker covers an underground water reserve that others are hunting.
+
+Ending - Win:
+You bargain when you must, fight when you have to, and move supplies through decoys. Allies drink, enemies tire, and the bunker never reveals its well. When the storms clear, you hold enough to seed a new start.
+
+Ending - Loss:
+A betrayed trade or a missed patrol gives you away. Explosives breach the hatch, pumps are seized, and the last clean water flows into enemy trucks. The bunker dies of thirst.

@@ -1,9 +1,9 @@
 // ElevenLabs text-to-speech helper for the host screen.
-// Calls a serverless proxy (api/tts) so secrets stay server-side.
+// Calls a backend proxy so secrets stay server-side.
 
 const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' // Rachel
 const defaultModelId = 'eleven_multilingual_v2'
-const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || '/api/tts'
+const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || 'http://localhost:5000/api/tts'
 
 async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaultModelId) {
   const response = await fetch(ttsEndpoint, {

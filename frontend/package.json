@@ -1,0 +1,19 @@
+{
+  "name": "eleven-bunkers-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bunker - A social survival game. Players are assigned hidden persona cards and debate who gets into a bunker. The group survives if final team scores above a threshold determined by catastrophe and bunker conditions.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "vite": "^8.0.3"
+  }
+}
