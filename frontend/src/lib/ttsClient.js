@@ -3,7 +3,7 @@
 
 const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'NOpBlnGInO9m6vDvFkFC'
 const defaultModelId = 'eleven_multilingual_v2'
-const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || 'http://localhost:5000/api/tts'
+const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || '/api/tts'
 let speechQueue = Promise.resolve()
 const eliminationFollowUps = [
   'Time to reveal new categories.',
