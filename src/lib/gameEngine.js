@@ -23,7 +23,6 @@ function buildRoundState(roundIndex) {
   return {
     roundIndex,
     roundNumber: roundIndex + 1,
-    revealCategory: REVEAL_ORDER[roundIndex],
     phase: 'reveal',
     revealedBy: [],
     votes: {},
@@ -65,7 +64,7 @@ export function startLobbyGame(lobby) {
       seat: index + 1,
       isEliminated: false,
       eliminatedRound: null,
-      revealedCategories: [],
+      revealedCategories: ['profession'],
       cards,
       score: calculatePlayerScore(cards),
     }
@@ -91,13 +90,17 @@ export function startLobbyGame(lobby) {
   }
 }
 
-export function revealForPlayer(lobby, playerId) {
+export function revealForPlayer(lobby, playerId, category) {
   if (!lobby.game || lobby.game.currentRound.phase !== 'reveal') {
     return lobby
   }
 
-  const revealCategory = lobby.game.currentRound.revealCategory
-  if (lobby.game.currentRound.revealedBy.includes(playerId)) {
+  if (
+    !category ||
+    category === 'profession' ||
+    !REVEAL_ORDER.includes(category) ||
+    lobby.game.currentRound.revealedBy.includes(playerId)
+  ) {
     return lobby
   }
 
@@ -105,9 +108,9 @@ export function revealForPlayer(lobby, playerId) {
     player.id === playerId
       ? {
           ...player,
-          revealedCategories: player.revealedCategories.includes(revealCategory)
+          revealedCategories: player.revealedCategories.includes(category)
             ? player.revealedCategories
-            : [...player.revealedCategories, revealCategory],
+            : [...player.revealedCategories, category],
         }
       : player,
   )
@@ -234,6 +237,7 @@ export function getVisibleCards(viewerId, player, revealEverything = false) {
     REVEAL_ORDER.map((category) => {
       const visible =
         revealEverything ||
+        category === 'profession' ||
         viewerId === player.id ||
         player.revealedCategories.includes(category)
 

@@ -179,12 +179,12 @@ function App() {
     }
   }
 
-  const handleRevealCategory = () => {
-    if (!lobby || !session?.playerId) {
+  const handleRevealCategory = (category) => {
+    if (!lobby || !session?.playerId || !category) {
       return
     }
 
-    const updatedLobby = saveLobby(revealForPlayer(lobby, session.playerId))
+    const updatedLobby = saveLobby(revealForPlayer(lobby, session.playerId, category))
     setSession((current) => ({
       ...current,
       lobby: updatedLobby,

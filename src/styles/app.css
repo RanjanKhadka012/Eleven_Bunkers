@@ -523,6 +523,11 @@ button:disabled {
   color: var(--muted);
 }
 
+.category-row strong,
+.player-card-header strong {
+  color: #ffffff;
+}
+
 .cards-section {
   display: grid;
   gap: 0.75rem;
@@ -559,12 +564,30 @@ button:disabled {
 
 .category-row {
   padding: 0.7rem 0.8rem;
+  text-align: left;
+  width: 100%;
+  max-width: none;
+  cursor: default;
 }
 
 .category-row span {
   display: block;
   margin-bottom: 0.25rem;
   font-size: 0.8rem;
+}
+
+.category-row-selectable {
+  cursor: pointer;
+}
+
+.category-row-selectable:hover {
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.category-row-selected {
+  border-color: rgba(166, 195, 111, 0.42);
+  background: rgba(166, 195, 111, 0.12);
 }
 
 .player-card {
