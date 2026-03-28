@@ -90,17 +90,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                   </p>
                   {currentPlayerHasRevealed ? (
                     <p className="phase-copy phase-copy-tight">You already revealed this round.</p>
-                  ) : (
-                    <button
-                      className="primary-button"
-                      onClick={handleConfirmReveal}
-                      disabled={!canConfirmReveal}
-                    >
-                      {selectedReveal
-                        ? `Confirm ${CATEGORY_LABELS[selectedReveal]}`
-                        : 'Select a category on your card'}
-                    </button>
-                  )}
+                  ) : null}
                 </>
               )
             ) : isHostView ? (
@@ -175,11 +165,14 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
               player.id === session.playerId &&
               !currentPlayer.isEliminated &&
               !currentPlayerHasRevealed
+            const isOwnCard = !isHostView && player.id === session.playerId
 
             return (
               <article
                 key={player.id}
-                className={`player-card ${player.isEliminated ? 'player-card-eliminated' : ''}`}
+                className={`player-card ${player.isEliminated ? 'player-card-eliminated' : ''} ${
+                  isOwnCard ? 'player-card-own' : ''
+                }`}
               >
                 <div className="player-card-header">
                   <div>
@@ -201,7 +194,7 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                         key={`${player.id}-${category}`}
                         type="button"
                         className={`category-row ${isSelectable ? 'category-row-selectable' : ''} ${
-                          selectedReveal === category ? 'category-row-selected' : ''
+                          isOwnCard && selectedReveal === category ? 'category-row-selected' : ''
                         }`}
                         onClick={() => {
                           if (isSelectable) {
@@ -216,6 +209,20 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
                     )
                   })}
                 </div>
+
+                {canSelectRevealCategory && (
+                  <div className="card-action-area">
+                    <button
+                      className="primary-button card-confirm-button"
+                      onClick={handleConfirmReveal}
+                      disabled={!canConfirmReveal}
+                    >
+                      {selectedReveal
+                        ? `Confirm ${CATEGORY_LABELS[selectedReveal]}`
+                        : 'Choose a category'}
+                    </button>
+                  </div>
+                )}
 
                 {canVoteForPlayer && (
                   <button

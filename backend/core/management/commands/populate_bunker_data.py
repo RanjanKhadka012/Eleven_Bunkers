@@ -90,10 +90,15 @@ class Command(BaseCommand):
         ]
         
         baggage = [
-            ('Proven Leader', 6), ('Highly Educated', 5), ('Loyal', 4),
-            ('Survivor Mindset', 3), ('Optimist', 2), ('Neutral', 1),
-            ('Unknown', 0), ('Pessimist', -2), ('Criminal Record', -3),
-            ('Manipulative', -4), ('Unstable', -5), ('Addicted/Dangerous', -6),
+            ('Portable water purifier', 6), ('Trauma medical bag', 5),
+            ('Seed vault canister', 4), ('Heavy-duty tool kit', 4),
+            ('Solar charger', 3), ('Rope and climbing gear', 3),
+            ('Camping stove', 2), ('Flashlight set', 2),
+            ('Warm blankets', 1), ('Spare batteries', 1),
+            ('Family photo album', 0), ('Deck of cards', 0),
+            ('Heavy luxury suitcase', -2), ('Broken gaming console', -3),
+            ('Crate of useless collectibles', -4), ('Leaking fuel canister', -5),
+            ('Biohazard sample case', -6),
         ]
         
         additional_info = [
@@ -129,8 +134,14 @@ class Command(BaseCommand):
             Card.objects.get_or_create(card_type=card_type_phobia, name=name, defaults={'points': points})
         
         card_type_baggage = CardType.objects.get(card_type='baggage')
+        baggage_names = [name for name, _ in baggage]
+        Card.objects.filter(card_type=card_type_baggage).exclude(name__in=baggage_names).delete()
         for name, points in baggage:
-            Card.objects.get_or_create(card_type=card_type_baggage, name=name, defaults={'points': points})
+            Card.objects.update_or_create(
+                card_type=card_type_baggage,
+                name=name,
+                defaults={'points': points}
+            )
         
         card_type_info = CardType.objects.get(card_type='additional_info')
         for name, points in additional_info:

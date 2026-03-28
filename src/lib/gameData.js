@@ -43,6 +43,11 @@ export const BUNKERS = [
   { name: 'Damaged bunker', modifier: 6 },
 ]
 
+export const THRESHOLD_RULES = {
+  basePerSurvivor: 9,
+  modifierWeight: 0.75,
+}
+
 export const CARD_POOLS = {
   profession: [
     { name: 'Emergency Doctor', points: 12 },
@@ -156,19 +161,23 @@ export const CARD_POOLS = {
     { name: 'No Phobia', points: 0 },
   ],
   baggage: [
-    { name: 'Proven Leader', points: 6 },
-    { name: 'Highly Educated', points: 5 },
-    { name: 'Loyal', points: 4 },
-    { name: 'Survivor Mindset', points: 3 },
-    { name: 'Optimist', points: 2 },
-    { name: 'Neutral', points: 1 },
-    { name: 'Unknown', points: 0 },
-    { name: 'Pessimist', points: -2 },
-    { name: 'Criminal Record', points: -3 },
-    { name: 'Manipulative', points: -4 },
-    { name: 'Unstable', points: -5 },
-    { name: 'Addicted', points: -6 },
-    { name: 'Dangerous', points: -6 },
+    { name: 'Portable water purifier', points: 6 },
+    { name: 'Trauma medical bag', points: 5 },
+    { name: 'Seed vault canister', points: 4 },
+    { name: 'Heavy-duty tool kit', points: 4 },
+    { name: 'Solar charger', points: 3 },
+    { name: 'Rope and climbing gear', points: 3 },
+    { name: 'Camping stove', points: 2 },
+    { name: 'Flashlight set', points: 2 },
+    { name: 'Warm blankets', points: 1 },
+    { name: 'Spare batteries', points: 1 },
+    { name: 'Family photo album', points: 0 },
+    { name: 'Deck of cards', points: 0 },
+    { name: 'Heavy luxury suitcase', points: -2 },
+    { name: 'Broken gaming console', points: -3 },
+    { name: 'Crate of useless collectibles', points: -4 },
+    { name: 'Leaking fuel canister', points: -5 },
+    { name: 'Biohazard sample case', points: -6 },
   ],
   additional_info: [
     { name: 'Immune to catastrophe', points: 8 },

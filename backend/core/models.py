@@ -168,8 +168,8 @@ class GameSession(models.Model):
     ending_narration = models.TextField(blank=True, help_text="Reflective ending narration text read at game conclusion")
     narration_audio_url = models.URLField(blank=True, help_text="URL to generated opening narration audio file")
     
-    base_threshold = models.IntegerField(default=0)  # survivors_needed × 18
-    final_threshold = models.IntegerField(default=0)  # base + modifiers
+    base_threshold = models.IntegerField(default=0)  # survivors_needed × 9
+    final_threshold = models.IntegerField(default=0)  # weighted base + modifiers
     final_score = models.IntegerField(null=True, blank=True)  # Total score of remaining players
     
     max_players = models.IntegerField(default=8)
@@ -185,15 +185,17 @@ class GameSession(models.Model):
         """
         Calculate final survival threshold based on catastrophe and bunker
         
-        Formula: (survivors_needed × 18) + catastrophe_mod + bunker_mod
+        Formula: (survivors_needed × 9) + round((catastrophe_mod + bunker_mod) × 0.75)
         
-        This threshold determines what minimum score the final team must achieve
+        This keeps the target difficult but still realistically reachable by a
+        well-selected final team.
         """
-        base = self.survivors_needed * 18
+        base = self.survivors_needed * 9
         catastrophe_mod = self.catastrophe.modifier if self.catastrophe else 0
         bunker_mod = self.bunker.modifier if self.bunker else 0
+        weighted_modifiers = round((catastrophe_mod + bunker_mod) * 0.75)
         self.base_threshold = base
-        self.final_threshold = base + catastrophe_mod + bunker_mod
+        self.final_threshold = max(0, base + weighted_modifiers)
         return self.final_threshold
     
     def check_survival(self):

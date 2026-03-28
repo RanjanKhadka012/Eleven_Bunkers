@@ -4,6 +4,7 @@ import {
   CATEGORY_LABELS,
   CATASTROPHES,
   REVEAL_ORDER,
+  THRESHOLD_RULES,
 } from './gameData'
 
 function randomItem(items) {
@@ -42,6 +43,18 @@ function calculatePlayerScore(cards) {
   return Object.values(cards).reduce((total, card) => total + card.points, 0)
 }
 
+function calculateThreshold(survivorsNeeded, catastropheModifier, bunkerModifier) {
+  const baseThreshold = survivorsNeeded * THRESHOLD_RULES.basePerSurvivor
+  const weightedModifiers = Math.round(
+    (catastropheModifier + bunkerModifier) * THRESHOLD_RULES.modifierWeight,
+  )
+
+  return {
+    baseThreshold,
+    finalThreshold: Math.max(0, baseThreshold + weightedModifiers),
+  }
+}
+
 function drawCard(category) {
   return randomItem(CARD_POOLS[category])
 }
@@ -50,8 +63,11 @@ export function startLobbyGame(lobby) {
   const catastrophe = randomItem(CATASTROPHES)
   const bunker = randomItem(BUNKERS)
   const survivorsNeeded = getSurvivorTarget(lobby.players.length)
-  const baseThreshold = survivorsNeeded * 18
-  const finalThreshold = baseThreshold + catastrophe.modifier + bunker.modifier
+  const { baseThreshold, finalThreshold } = calculateThreshold(
+    survivorsNeeded,
+    catastrophe.modifier,
+    bunker.modifier,
+  )
   const totalRounds = getTotalRounds(lobby.players.length, survivorsNeeded)
 
   const players = lobby.players.map((player, index) => {

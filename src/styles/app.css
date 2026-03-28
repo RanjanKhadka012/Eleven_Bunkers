@@ -597,6 +597,10 @@ button:disabled {
   min-height: 100%;
 }
 
+.player-card-own {
+  border-color: rgba(166, 195, 111, 0.24);
+}
+
 .player-card-header strong {
   font-size: 1rem;
 }
@@ -610,6 +614,22 @@ button:disabled {
   margin-top: 0.8rem;
   max-width: none;
   padding: 0.8rem 0.9rem;
+}
+
+.card-action-area {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.card-action-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.card-confirm-button {
+  max-width: none;
 }
 
 .compact-button {
@@ -695,7 +715,16 @@ button:disabled {
   }
 
   .cards-strip {
-    grid-auto-columns: 86vw;
-    gap: 0.8rem;
+    grid-auto-columns: 100%;
+    gap: 0.6rem;
+    padding-right: 0.1rem;
+  }
+
+  .cards-section {
+    width: 100%;
+  }
+
+  .player-card {
+    min-height: auto;
   }
 }
