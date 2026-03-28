@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   buildScenarioNarration,
   playOpeningNarration,
@@ -11,6 +11,7 @@ function HostGameScreen({ lobby, onLeaveGame }) {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [ttsError, setTtsError] = useState('')
   const [hasPlayedOpening, setHasPlayedOpening] = useState(false)
+  const openingStartedRef = useRef(false)
 
   const speak = async (action) => {
     setTtsError('')
@@ -26,9 +27,11 @@ function HostGameScreen({ lobby, onLeaveGame }) {
   }
 
   useEffect(() => {
-    if (!game || hasPlayedOpening) {
+    if (!game || hasPlayedOpening || openingStartedRef.current) {
       return undefined
     }
+
+    openingStartedRef.current = true
 
     const run = async () => {
       await speak(() => playOpeningNarration(game))
