@@ -483,47 +483,6 @@ button:disabled {
   align-items: end;
 }
 
-.game-topbar-centered {
-  justify-content: center;
-  text-align: center;
-}
-
-.game-round-heading {
-  display: grid;
-  justify-items: center;
-}
-
-.page-footer-action {
-  display: flex;
-  justify-content: center;
-  padding-top: 0.5rem;
-}
-
-.announcement-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  display: grid;
-  place-items: start center;
-  padding: 1rem;
-  pointer-events: none;
-}
-
-.announcement-card {
-  width: min(100%, 28rem);
-  border: 1px solid rgba(185, 107, 97, 0.28);
-  border-radius: 20px;
-  background: rgba(27, 16, 15, 0.92);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
-  padding: 1rem 1.1rem;
-  text-align: center;
-}
-
-.announcement-card h2 {
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-  color: #ffffff;
-}
-
 .phase-pill {
   border-radius: 999px;
   border: 1px solid var(--line);
