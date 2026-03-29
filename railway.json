@@ -3,10 +3,10 @@
   "services": {
     "backend": {
       "path": "backend",
-      "startCommand": "npm run start",
       "installCommand": "npm install",
+      "startCommand": "npm run start",
       "envVariables": {
-        "PORT": "5001",
+        "PORT": "${PORT}",
         "ELEVENLABS_API_KEY": "REPLACE_ME",
         "ELEVENLABS_VOICE_ID": "21m00Tcm4TlvDq8ikWAM"
       }
