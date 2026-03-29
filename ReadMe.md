@@ -12,11 +12,11 @@ A full-stack web application for playing **Bunker**, an engaging social deductio
 5. **Final Scoring**: The remaining survivors' cards are scored
 6. **Outcome**: Humanity survives if the team score meets the threshold determined by catastrophe + bunker conditions
 
-**Win Condition**: `final_score >= (survivors_needed × 18) + catastrophe_modifier + bunker_modifier`
+**Win Condition**: `final_score >= (survivors_needed × 9) + catastrophe_modifier + bunker_modifier`
 
 Example: With 4 survivors needed, Nuclear War catastrophe (+10), and a Poor Bunker (+5):
-- Base threshold: 4 × 18 = 72
-- With modifiers: 72 + 10 + 5 = **87 points needed to survive**
+- Base threshold: 4 × 9 = 36
+- With modifiers: 36 + 10 + 5 = **41 points needed to survive**
 
 ---
 
