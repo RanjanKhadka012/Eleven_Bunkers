@@ -17,6 +17,22 @@ const ttsEndpoint = (() => {
 
   return defaultRemoteTts
 })()
+
+function getBackendBase() {
+  if (ttsEndpoint.startsWith('http')) {
+    try {
+      return new URL(ttsEndpoint).origin
+    } catch {
+      // fall through
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+
+  return ''
+}
 let speechQueue = Promise.resolve()
 let currentAudio = null
 let currentUrl = null
@@ -129,6 +145,26 @@ export function stopCurrentSpeech() {
 
   currentAudio = null
   currentUrl = null
+}
+
+export async function pingBackendHealth() {
+  const base = getBackendBase()
+
+  if (!base) {
+    console.warn('[tts] backend base unresolved; skipping health ping')
+    return
+  }
+
+  const url = `${base}/health`
+  console.debug('[tts] pinging backend health', { url })
+
+  try {
+    const res = await fetch(url, { method: 'GET' })
+    const ok = res.ok
+    console.info('[tts] backend health response', { status: res.status, ok })
+  } catch (error) {
+    console.error('[tts] backend health ping failed', { message: error?.message })
+  }
 }
 
 export function buildScenarioNarration(game) {
