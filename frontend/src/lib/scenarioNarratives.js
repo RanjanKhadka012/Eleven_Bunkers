@@ -5,6 +5,7 @@ import zombieRaw from '../scenarios/narratives/Zombie_Outbreak.txt?raw'
 import alienRaw from '../scenarios/narratives/Alien_Invasion.txt?raw'
 import resourceRaw from '../scenarios/narratives/Resource_War.txt?raw'
 import climateRaw from '../scenarios/narratives/Climate_Collapse.txt?raw'
+import meteorRaw from '../scenarios/narratives/Meteor_Strike.txt?raw'
 
 function parseNarrative(raw) {
   const sections = { opening: '', explanation: '', endingWin: '', endingLoss: '' }
@@ -95,6 +96,12 @@ const SCENARIO_SOURCES = [
     label: 'The Endless Winter',
     matches: ['climate collapse', 'global freezing', 'winter'],
     raw: climateRaw,
+  },
+  {
+    slug: 'meteor_strike',
+    label: 'Falling Silence',
+    matches: ['meteor strike', 'meteor', 'asteroid'],
+    raw: meteorRaw,
   },
 ]
 
