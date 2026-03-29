@@ -146,9 +146,6 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
     <main className="page host-page">
       <section className="host-topbar">
         <p className="eyebrow">Host Console</p>
-        <button className="ghost-button compact-button" onClick={onLeaveGame}>
-          Leave
-        </button>
       </section>
 
       <section className="host-hero">
@@ -315,6 +312,12 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
           These controls only affect the current round&apos;s discussion phase.
         </p>
       </section>
+
+      <div className="page-footer-action">
+        <button className="ghost-button compact-button" onClick={onLeaveGame}>
+          Leave
+        </button>
+      </div>
     </main>
   )
 }
