@@ -1,4 +1,5 @@
 # 🎮 Bunker - Social Survival Game
+Bunker throws you and your friends into a last-chance survival showdown. Spin up a lobby, get a wild catastrophe (alien harvests? nuclear fallout?), and race through reveal rounds to prove your worth. Flaunt your profession, flex your skills, hide your baggage—then debate, accuse, and vote before the clock slams shut. Hosts can pause, skip, or jump to the verdict. ElevenLabs voiceovers boom out the story beats, and every elimination changes the fate: hit the survival threshold or humanity’s toast. Fast setup, frantic decisions, brutal fun—ready to find out who makes it into the bunker?
 
 A full-stack web application for playing **Bunker**, an engaging social deduction game where players debate who gets into a survival bunker based on hidden persona cards and a complex point-scoring system.
 
