@@ -1,6 +1,7 @@
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
+import { outcomeSummaryHandler } from './api/outcomeSummary.js'
 import { ttsHandler } from './api/tts.js'
 
 dotenv.config()
@@ -85,6 +86,7 @@ app.put('/api/lobbies/:code', (req, res) => {
 })
 
 app.post('/api/tts', ttsHandler)
+app.post('/api/outcome-summary', outcomeSummaryHandler)
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' })
 })

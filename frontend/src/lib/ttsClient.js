@@ -33,6 +33,19 @@ function getBackendBase() {
 
   return ''
 }
+
+function getApiEndpoint(path) {
+  if (path.startsWith('/')) {
+    if (ttsEndpoint.startsWith('http')) {
+      const origin = getBackendBase()
+      return origin ? `${origin}${path}` : path
+    }
+
+    return path
+  }
+
+  return path
+}
 let speechQueue = Promise.resolve()
 let currentAudio = null
 let currentUrl = null
@@ -79,6 +92,12 @@ async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaul
 export async function playSpeech(text, options = {}) {
   return enqueueSpeech(async () => {
     const { voiceId = defaultVoiceId, modelId = defaultModelId } = options
+    console.info('[tts] playSpeech:start', {
+      chars: text?.length ?? 0,
+      preview: text?.slice?.(0, 140),
+      voiceId,
+      modelId,
+    })
     const blob = await synthesizeToBlob(text, voiceId, modelId)
     const url = URL.createObjectURL(blob)
 
@@ -95,6 +114,7 @@ export async function playSpeech(text, options = {}) {
       audio.addEventListener(
         'ended',
         () => {
+          console.info('[tts] playSpeech:ended')
           URL.revokeObjectURL(url)
           if (currentAudio === audio) {
             currentAudio = null
@@ -105,8 +125,10 @@ export async function playSpeech(text, options = {}) {
       )
 
       await audio.play()
+      console.info('[tts] playSpeech:playing')
       return audio
     } catch (error) {
+      console.error('[tts] playSpeech:error', { message: error?.message })
       URL.revokeObjectURL(url)
       throw error
     }
@@ -223,9 +245,100 @@ export function buildOutcomeNarration(game) {
     : 'The chances of survival are low. The last defenses failed. Humanity fades into silence.'
 }
 
-export function buildEliminationNarration(playerName, roundNumber = 1) {
+function buildLocalOutcomeSummary(game) {
+  const survivors = (game?.players || []).filter((player) => !player.isEliminated)
+  if (survivors.length === 0) {
+    return ''
+  }
+
+  const strongestSurvivor = [...survivors].sort((a, b) => b.score - a.score)[0]
+  const strongestProfession = strongestSurvivor?.cards?.profession?.name
+  const strongestSkill = strongestSurvivor?.cards?.skill?.name
+
+  const keyRisk = survivors
+    .flatMap((player) =>
+      Object.values(player.cards || {}).map((card) => ({
+        playerName: player.name,
+        name: card?.name,
+        points: card?.points ?? 0,
+      })),
+    )
+    .filter((card) => card.name && card.points < 0)
+    .sort((a, b) => a.points - b.points)[0]
+
+  const parts = []
+
+  if (strongestProfession || strongestSkill) {
+    const strengths = [strongestProfession, strongestSkill].filter(Boolean).join(' and ')
+    parts.push(`${strongestSurvivor.name} brings ${strengths}, which could make a real difference in ${game.catastrophe?.name}.`)
+  }
+
+  if (game.bunker?.name) {
+    parts.push(`The bunker condition is ${game.bunker.name}, so every useful role matters.`)
+  }
+
+  if (keyRisk) {
+    parts.push(`The biggest concern is ${keyRisk.name} carried by ${keyRisk.playerName}.`)
+  }
+
+  return parts.join(' ')
+}
+
+export async function fetchOutcomeSummary(game, timeoutMs = 2500) {
+  if (!game || game.survived === null) {
+    return ''
+  }
+
+  console.info('[tts] outcomeSummary:fetch:start', {
+    endpoint: getApiEndpoint('/api/outcome-summary'),
+    timeoutMs,
+  })
+
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null
+  const timeoutId = controller
+    ? window.setTimeout(() => controller.abort(), timeoutMs)
+    : null
+
+  let response
+  try {
+    response = await fetch(getApiEndpoint('/api/outcome-summary'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ game }),
+      signal: controller?.signal,
+    })
+  } finally {
+    if (timeoutId) {
+      window.clearTimeout(timeoutId)
+    }
+  }
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '')
+    console.error('[tts] outcomeSummary:fetch:failed', { status: response.status, detail })
+    throw new Error(`Outcome summary failed (${response.status}): ${detail}`)
+  }
+
+  const data = await response.json()
+  const narration = data?.narration?.trim?.() || ''
+  console.info('[tts] outcomeSummary:fetch:ok', {
+    chars: narration.length,
+    fallback: Boolean(data?.fallback),
+    error: data?.error || null,
+    preview: narration.slice(0, 140),
+  })
+  return narration
+}
+
+export function buildEliminationNarration(playerName, roundNumber = 1, isFinalElimination = false) {
   if (!playerName) {
     return ''
+  }
+
+  if (isFinalElimination) {
+    return `Player ${playerName} has been eliminated.`
   }
 
   const followUp = eliminationFollowUps[(roundNumber - 1) % eliminationFollowUps.length]
@@ -243,17 +356,46 @@ export async function playOpeningNarration(game, options = {}) {
 }
 
 export async function playOutcomeNarration(game, options = {}) {
-  const text = buildOutcomeNarration(game)
+  let narrationText = ''
+  try {
+    narrationText = await fetchOutcomeSummary(game)
+  } catch (error) {
+    console.error('[tts] outcome summary failed', { message: error?.message })
+  }
 
-  if (!text) {
+  if (!narrationText) {
+    narrationText = [buildOutcomeNarration(game), buildLocalOutcomeSummary(game)]
+      .filter(Boolean)
+      .join(' ')
+    console.info('[tts] outcomeNarration:fallback-local', {
+      chars: narrationText.length,
+      preview: narrationText.slice(0, 140),
+    })
+  } else {
+    console.info('[tts] outcomeNarration:using-remote-narration', {
+      chars: narrationText.length,
+    })
+  }
+
+  console.info('[tts] outcomeNarration:final', {
+    chars: narrationText.length,
+    preview: narrationText.slice(0, 200),
+  })
+
+  if (!narrationText) {
     throw new Error('No outcome narration available to play.')
   }
 
-  return playSpeech(text, options)
+  return playSpeech(narrationText, options)
 }
 
-export async function playEliminationNarration(playerName, roundNumber, options = {}) {
-  const text = buildEliminationNarration(playerName, roundNumber)
+export async function playEliminationNarration(
+  playerName,
+  roundNumber,
+  isFinalElimination = false,
+  options = {},
+) {
+  const text = buildEliminationNarration(playerName, roundNumber, isFinalElimination)
 
   if (!text) {
     throw new Error('No elimination narration available to play.')

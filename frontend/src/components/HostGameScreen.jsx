@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  buildScenarioNarration,
   playEliminationNarration,
   playOpeningNarration,
   playOutcomeNarration,
@@ -21,6 +20,7 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
   const previousPhaseRef = useRef(currentRound.phase)
   const lastNarratedEliminationRoundRef = useRef(null)
   const hasNarratedOutcomeRef = useRef(false)
+  const outcomeTimeoutRef = useRef(null)
   const [discussionNow, setDiscussionNow] = useState(Date.now())
 
   const attachAudioHandlers = (audio) => {
@@ -114,7 +114,14 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
     }
 
     lastNarratedEliminationRoundRef.current = latestRound.roundNumber
-    speak(() => playEliminationNarration(eliminatedPlayer.name, latestRound.roundNumber))
+    const isFinalElimination = game.survived !== null
+    speak(() =>
+      playEliminationNarration(
+        eliminatedPlayer.name,
+        latestRound.roundNumber,
+        isFinalElimination,
+      ),
+    )
     return undefined
   }, [game.completedRounds.length, game.players])
 
@@ -123,10 +130,24 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
       return undefined
     }
 
+    console.info('[host] outcomeNarration:scheduled', {
+      survived: game.survived,
+      finalScore: game.finalScore,
+      finalThreshold: game.finalThreshold,
+    })
     hasNarratedOutcomeRef.current = true
+    console.info('[host] outcomeNarration:starting-immediately')
     speak(() => playOutcomeNarration(game))
     return undefined
   }, [game])
+
+  useEffect(() => {
+    return () => {
+      if (outcomeTimeoutRef.current) {
+        window.clearTimeout(outcomeTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const isDiscussionPhase = currentRound.phase === 'discussion'
   const isDiscussionPaused = isDiscussionPhase && !currentRound.discussionEndsAt
@@ -194,14 +215,6 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
           >
             Play Opening
           </button>
-          <button
-            className="ghost-button"
-            type="button"
-            onClick={() => speak(() => playSpeech(buildScenarioNarration(game)))}
-            disabled={isSpeaking}
-          >
-            Play Scenario Summary
-          </button>
           {game.survived !== null && (
             <button
               className="ghost-button"
@@ -212,25 +225,6 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
               Play Outcome
             </button>
           )}
-          {isSpeaking && <span className="host-note">Generating audio…</span>}
-          {ttsError && <span className="host-note host-note-error">{ttsError}</span>}
-        </div>
-
-        <p className="host-note">
-          ElevenLabs audio generation and playback can plug into this host screen
-          without exposing player cards or hidden information.
-        </p>
-      </section>
-
-      <section className="host-narration-panel">
-        <div className="host-panel-header">
-          <div>
-            <p className="eyebrow">Playback</p>
-            <h2>Narration transport</h2>
-          </div>
-        </div>
-
-        <div className="host-actions">
           <button
             className="ghost-button"
             type="button"
@@ -239,8 +233,10 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
               setPlaybackState('paused')
             }}
             disabled={playbackState !== 'playing'}
+            aria-label="Pause narration"
+            title="Pause narration"
           >
-            Pause narration
+            II
           </button>
           <button
             className="ghost-button"
@@ -250,8 +246,10 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
               setPlaybackState('playing')
             }}
             disabled={playbackState !== 'paused'}
+            aria-label="Resume narration"
+            title="Resume narration"
           >
-            Resume narration
+            {'▶'}
           </button>
           <button
             className="primary-button"
@@ -264,8 +262,14 @@ function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipTo
           >
             Skip narration
           </button>
+          {isSpeaking && <span className="host-note">Generating audio…</span>}
+          {ttsError && <span className="host-note host-note-error">{ttsError}</span>}
         </div>
 
+        <p className="host-note">
+          ElevenLabs audio generation and playback can plug into this host screen
+          without exposing player cards or hidden information.
+        </p>
         <p className="host-note">Controls the currently playing ElevenLabs audio.</p>
       </section>
 
