@@ -1,0 +1,15 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "services": {
+    "backend": {
+      "path": "backend",
+      "startCommand": "npm run start",
+      "installCommand": "npm install",
+      "envVariables": {
+        "PORT": "5001",
+        "ELEVENLABS_API_KEY": "REPLACE_ME",
+        "ELEVENLABS_VOICE_ID": "21m00Tcm4TlvDq8ikWAM"
+      }
+    }
+  }
+}
