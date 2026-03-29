@@ -2,11 +2,11 @@
   "$schema": "https://railway.app/railway.schema.json",
   "services": {
     "backend": {
-      "path": "backend",
+      "path": "Eleven_Bunbackend",
       "installCommand": "npm install",
-      "startCommand": "npm run start",
+      "startCommand": "node server.js",
       "envVariables": {
-        "PORT": "${PORT}",
+        "PORT": "5000",
         "ELEVENLABS_API_KEY": "REPLACE_ME",
         "ELEVENLABS_VOICE_ID": "21m00Tcm4TlvDq8ikWAM"
       }
