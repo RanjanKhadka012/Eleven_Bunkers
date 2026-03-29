@@ -1,10 +1,12 @@
 // ElevenLabs text-to-speech helper for the host screen.
 // Calls a backend proxy so secrets stay server-side.
 
-const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || 'NOpBlnGInO9m6vDvFkFC'
+const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID
 const defaultModelId = 'eleven_multilingual_v2'
 const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || '/api/tts'
 let speechQueue = Promise.resolve()
+let currentAudio = null
+let currentUrl = null
 const eliminationFollowUps = [
   'Time to reveal new categories.',
   'Let us see who else will fail to earn a place in the bunker.',
@@ -49,14 +51,67 @@ export async function playSpeech(text, options = {}) {
 
     try {
       const audio = new Audio(url)
+      currentAudio?.pause()
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl)
+      }
+
+      currentAudio = audio
+      currentUrl = url
+
+      audio.addEventListener(
+        'ended',
+        () => {
+          URL.revokeObjectURL(url)
+          if (currentAudio === audio) {
+            currentAudio = null
+            currentUrl = null
+          }
+        },
+        { once: true },
+      )
+
       await audio.play()
-      audio.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true })
       return audio
     } catch (error) {
       URL.revokeObjectURL(url)
       throw error
     }
   })
+}
+
+export function pauseCurrentSpeech() {
+  if (currentAudio && !currentAudio.paused) {
+    currentAudio.pause()
+  }
+}
+
+export function resumeCurrentSpeech() {
+  if (currentAudio && currentAudio.paused) {
+    return currentAudio.play()
+  }
+
+  return Promise.resolve()
+}
+
+export function stopCurrentSpeech() {
+  if (!currentAudio) {
+    return
+  }
+
+  try {
+    currentAudio.pause()
+    currentAudio.currentTime = currentAudio.duration || 0
+  } catch {
+    // ignore
+  }
+
+  if (currentUrl) {
+    URL.revokeObjectURL(currentUrl)
+  }
+
+  currentAudio = null
+  currentUrl = null
 }
 
 export function buildScenarioNarration(game) {

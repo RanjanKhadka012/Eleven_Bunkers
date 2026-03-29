@@ -5,12 +5,16 @@ import {
   playOpeningNarration,
   playOutcomeNarration,
   playSpeech,
+  pauseCurrentSpeech,
+  resumeCurrentSpeech,
+  stopCurrentSpeech,
 } from '../lib/ttsClient'
 
-function HostGameScreen({ lobby, onLeaveGame }) {
+function HostGameScreen({ lobby, onPauseDiscussion, onResumeDiscussion, onSkipToVoting, onLeaveGame }) {
   const { game } = lobby
   const currentRound = game.currentRound
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [playbackState, setPlaybackState] = useState('idle') // idle | playing | paused
   const [ttsError, setTtsError] = useState('')
   const [hasPlayedOpening, setHasPlayedOpening] = useState(false)
   const openingStartedRef = useRef(false)
@@ -19,12 +23,30 @@ function HostGameScreen({ lobby, onLeaveGame }) {
   const hasNarratedOutcomeRef = useRef(false)
   const [discussionNow, setDiscussionNow] = useState(Date.now())
 
+  const attachAudioHandlers = (audio) => {
+    if (!audio) {
+      setPlaybackState('idle')
+      return
+    }
+
+    setPlaybackState(audio.paused ? 'paused' : 'playing')
+
+    const handleEnded = () => {
+      setPlaybackState('idle')
+      audio.removeEventListener('ended', handleEnded)
+    }
+
+    audio.addEventListener('ended', handleEnded)
+  }
+
   const speak = async (action) => {
     setTtsError('')
     setIsSpeaking(true)
 
     try {
-      await action()
+      const audio = await action()
+      attachAudioHandlers(audio)
+      return audio
     } catch (error) {
       setTtsError(error?.message || 'Unable to play narration')
     } finally {
@@ -106,10 +128,14 @@ function HostGameScreen({ lobby, onLeaveGame }) {
     return undefined
   }, [game])
 
-  const discussionSecondsLeft =
-    currentRound.phase === 'discussion' && currentRound.discussionEndsAt
-      ? Math.max(0, Math.ceil((currentRound.discussionEndsAt - discussionNow) / 1000))
-      : 0
+  const isDiscussionPhase = currentRound.phase === 'discussion'
+  const isDiscussionPaused = isDiscussionPhase && !currentRound.discussionEndsAt
+  const discussionMillisRemaining = isDiscussionPhase
+    ? currentRound.discussionEndsAt
+      ? Math.max(0, currentRound.discussionEndsAt - discussionNow)
+      : currentRound.discussionPausedRemaining ?? 0
+    : 0
+  const discussionSecondsLeft = Math.ceil(discussionMillisRemaining / 1000)
 
   const formattedDiscussionTime = `${String(Math.floor(discussionSecondsLeft / 60)).padStart(
     2,
@@ -131,10 +157,10 @@ function HostGameScreen({ lobby, onLeaveGame }) {
         {game.scenario?.label && <p className="eyebrow">Scenario: {game.scenario.label}</p>}
       </section>
 
-      {currentRound.phase === 'discussion' && (
+      {isDiscussionPhase && (
         <section className="discussion-timer host-discussion-timer">
           <span className="info-label">Discussion Timer</span>
-          <strong>{formattedDiscussionTime}</strong>
+          <strong>{isDiscussionPaused ? 'Paused' : formattedDiscussionTime}</strong>
         </section>
       )}
 
@@ -196,6 +222,97 @@ function HostGameScreen({ lobby, onLeaveGame }) {
         <p className="host-note">
           ElevenLabs audio generation and playback can plug into this host screen
           without exposing player cards or hidden information.
+        </p>
+      </section>
+
+      <section className="host-narration-panel">
+        <div className="host-panel-header">
+          <div>
+            <p className="eyebrow">Playback</p>
+            <h2>Narration transport</h2>
+          </div>
+        </div>
+
+        <div className="host-actions">
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => {
+              pauseCurrentSpeech()
+              setPlaybackState('paused')
+            }}
+            disabled={playbackState !== 'playing'}
+          >
+            Pause narration
+          </button>
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={async () => {
+              await resumeCurrentSpeech()
+              setPlaybackState('playing')
+            }}
+            disabled={playbackState !== 'paused'}
+          >
+            Resume narration
+          </button>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={() => {
+              stopCurrentSpeech()
+              setPlaybackState('idle')
+            }}
+            disabled={playbackState === 'idle'}
+          >
+            Skip narration
+          </button>
+        </div>
+
+        <p className="host-note">Controls the currently playing ElevenLabs audio.</p>
+      </section>
+
+      <section className="host-narration-panel">
+        <div className="host-panel-header">
+          <div>
+            <p className="eyebrow">Round Controls</p>
+            <h2>Discussion pacing</h2>
+          </div>
+        </div>
+
+        <p className="host-copy">
+          Pause the discussion timer or skip directly to voting for quicker testing.
+        </p>
+
+        <div className="host-actions">
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={onPauseDiscussion}
+            disabled={!isDiscussionPhase || isDiscussionPaused}
+          >
+            Pause discussion
+          </button>
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={onResumeDiscussion}
+            disabled={!isDiscussionPhase || !isDiscussionPaused}
+          >
+            Resume discussion
+          </button>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={onSkipToVoting}
+            disabled={!isDiscussionPhase}
+          >
+            Skip to voting
+          </button>
+        </div>
+
+        <p className="host-note">
+          These controls only affect the current round&apos;s discussion phase.
         </p>
       </section>
     </main>
