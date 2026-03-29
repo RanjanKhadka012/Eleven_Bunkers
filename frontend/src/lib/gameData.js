@@ -25,6 +25,7 @@ export const CATASTROPHES = [
   { name: 'Zombie Apocalypse', modifier: 6 },
   { name: 'Global Pandemic', modifier: 8 },
   { name: 'AI Takeover', modifier: 4 },
+  { name: 'Resource War', modifier: 7 },
   { name: 'Climate Collapse', modifier: 5 },
   { name: 'Meteor Strike', modifier: 3 },
   { name: 'Alien Invasion', modifier: 9 },
