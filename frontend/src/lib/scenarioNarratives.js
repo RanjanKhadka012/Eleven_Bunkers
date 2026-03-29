@@ -96,6 +96,15 @@ const SCENARIO_SOURCES = [
     matches: ['climate collapse', 'global freezing', 'winter'],
     raw: climateRaw,
   },
+  {
+    slug: 'meteor_strike',
+    label: 'Impact Winter',
+    matches: ['meteor', 'asteroid', 'meteor strike'],
+    raw: `Opening: A colossal meteor shattered the sky, plunging the world into darkness.
+Scenario Explanation: Dust clouds choke the atmosphere, crops fail, and the sun is a memory. Survival means finding warmth, power, and food in a frozen wasteland.
+Ending - Win: You secure energy, food, and shelter; the bunker endures the long winter.
+Ending - Loss: Supplies dwindle and the cold wins; the bunker fades into the silent ice.`,
+  },
 ]
 
 export const SCENARIO_NARRATIVES = SCENARIO_SOURCES.map((source) => ({
