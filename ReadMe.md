@@ -63,7 +63,6 @@ Eleven_Bunker/
 
 ### Prerequisites
 - Node.js 16+ and npm
-- Python 3.13+
 - Git
 
 ### Frontend Setup
@@ -86,9 +85,7 @@ npm run dev
 cd backend
 
 # Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
+node server.js
 
 # Install dependencies
 pip install -r requirements.txt
@@ -97,19 +94,7 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Edit .env to add ElevenLabs API key
-# ELEVENLABS_API_KEY=sk_a6a35fec4355cb53c7525944ee1b7bc573837d6b27d8e510
-
-# Run migrations
-python manage.py migrate
-
-# Populate game data (cards, catastrophes, bunkers, special conditions)
-python manage.py populate_bunker_data
-
-# Start development server (http://localhost:8000)
-python manage.py runserver
-```
-
----
+# ELEVENLABS_API_KEY=<your api key here>
 
 ## 🎯 Key Features
 
@@ -157,7 +142,7 @@ python manage.py runserver
 Each player has one card of each type, randomly assigned:
 1. **Profession** (e.g., Doctor +12, Prisoner -8)
 2. **Skill** (e.g., Leadership +6, Incompetent -5)
-3. **Biological** (e.g., Athlete +8, Diabetic -4)
+3. **Age** (e.g., 24 +3, 70 -4)
 4. **Health** (e.g., Healthy +7, Diseased -6)
 5. **Hobby** (e.g., Gardening +6, Gambler -3)
 6. **Phobia** (e.g., None +2, Claustrophobia -4)
