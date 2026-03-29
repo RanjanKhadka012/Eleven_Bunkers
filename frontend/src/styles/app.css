@@ -12,6 +12,8 @@
   --acid-soft: rgba(166, 195, 111, 0.14);
   --warning: #d3a85d;
   --danger: #b96b61;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
   color: var(--text);
   background:
     radial-gradient(circle at top left, rgba(166, 195, 111, 0.14), transparent 24%),
@@ -57,6 +59,7 @@ input {
   filter: blur(84px);
   pointer-events: none;
   opacity: 0.55;
+  animation: ambientFloat 24s ease-in-out infinite alternate;
 }
 
 .ambient-one {
@@ -69,6 +72,7 @@ input {
   left: -5rem;
   bottom: -5rem;
   background: rgba(115, 128, 106, 0.16);
+  animation-duration: 19s;
 }
 
 .page {
@@ -77,6 +81,7 @@ input {
   width: min(1040px, calc(100% - 1.25rem));
   margin: 0 auto;
   padding: 1rem 0 2rem;
+  animation: pageEnter 700ms var(--ease-out-soft);
 }
 
 .page-home {
@@ -123,6 +128,11 @@ input {
   background: var(--panel);
   backdrop-filter: blur(12px);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  transition:
+    border-color 360ms ease,
+    background-color 360ms ease,
+    box-shadow 360ms ease,
+    opacity 360ms ease;
 }
 
 .hero-card {
@@ -132,6 +142,36 @@ input {
   background: transparent;
   backdrop-filter: none;
   box-shadow: none;
+}
+
+.page-home > section,
+.narrow-page > section,
+.game-page > section,
+.host-page > section,
+.page-footer-action {
+  animation: sectionRise 760ms var(--ease-out-soft) both;
+}
+
+.page-home > section:nth-child(1),
+.narrow-page > section:nth-child(1),
+.game-page > section:nth-child(1),
+.host-page > section:nth-child(1) {
+  animation-delay: 30ms;
+}
+
+.page-home > section:nth-child(2),
+.narrow-page > section:nth-child(2),
+.game-page > section:nth-child(2),
+.host-page > section:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.page-home > section:nth-child(3),
+.narrow-page > section:nth-child(3),
+.game-page > section:nth-child(3),
+.host-page > section:nth-child(3),
+.page-footer-action {
+  animation-delay: 220ms;
 }
 
 .eyebrow {
@@ -312,6 +352,10 @@ input {
   background: rgba(8, 11, 9, 0.72);
   color: var(--text);
   outline: none;
+  transition:
+    border-color 320ms ease,
+    box-shadow 320ms ease,
+    background-color 320ms ease;
 }
 
 input::placeholder {
@@ -329,13 +373,24 @@ button {
   border-radius: 16px;
   padding: 0.95rem 1rem;
   cursor: pointer;
-  transition: transform 140ms ease, border-color 140ms ease, opacity 140ms ease,
-    background 140ms ease;
+  transition:
+    transform 260ms var(--ease-out-soft),
+    border-color 320ms ease,
+    opacity 320ms ease,
+    background-color 320ms ease,
+    box-shadow 320ms ease,
+    filter 320ms ease;
   font-weight: 600;
 }
 
 button:hover {
   transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
 }
 
 button:disabled {
@@ -349,6 +404,11 @@ button:disabled {
   background: linear-gradient(180deg, #a6c36f, #89a05d);
   color: #11170f;
   font-weight: 700;
+  box-shadow: 0 12px 24px rgba(108, 133, 66, 0.18);
+}
+
+.primary-button:hover {
+  filter: brightness(1.03);
 }
 
 .secondary-button,
@@ -368,6 +428,7 @@ button:disabled {
   margin: 1rem 0 0;
   border-radius: 16px;
   padding: 0.9rem 1rem;
+  animation: sectionRise 520ms var(--ease-out-soft);
 }
 
 .message.error {
@@ -517,6 +578,7 @@ button:disabled {
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
   padding: 1rem 1.1rem;
   text-align: center;
+  animation: announcementDrop 620ms var(--ease-out-soft);
 }
 
 .announcement-card h2 {
@@ -538,12 +600,17 @@ button:disabled {
   background: rgba(211, 168, 93, 0.08);
   padding: 0.8rem 1rem;
   text-align: center;
+  transition:
+    border-color 360ms ease,
+    background-color 360ms ease,
+    box-shadow 360ms ease;
 }
 
 .discussion-timer strong {
   font-size: clamp(1.7rem, 5vw, 2.5rem);
   line-height: 1;
   color: #f0c883;
+  animation: timerPulse 3.2s ease-in-out infinite;
 }
 
 .host-discussion-timer {
@@ -586,6 +653,9 @@ button:disabled {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.02);
   padding: 0.85rem 0.95rem;
+  transition:
+    border-color 360ms ease,
+    background-color 360ms ease;
 }
 
 .progress-card strong {
@@ -602,6 +672,9 @@ button:disabled {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.02);
   padding: 0.95rem 1rem;
+  transition:
+    border-color 360ms ease,
+    background-color 360ms ease;
 }
 
 .scenario-item strong {
@@ -711,6 +784,7 @@ button:disabled {
 .vote-button-selected {
   border-color: rgba(166, 195, 111, 0.4);
   background: rgba(166, 195, 111, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(166, 195, 111, 0.14);
 }
 
 .vote-button small,
@@ -772,6 +846,10 @@ button:disabled {
   width: 100%;
   max-width: none;
   cursor: default;
+  transition:
+    border-color 320ms ease,
+    background-color 320ms ease,
+    box-shadow 320ms ease;
 }
 
 .category-row:disabled {
@@ -796,6 +874,7 @@ button:disabled {
 .category-row-selected {
   border-color: rgba(166, 195, 111, 0.42);
   background: rgba(166, 195, 111, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(166, 195, 111, 0.1);
 }
 
 .category-row .category-label-revealed,
@@ -810,6 +889,11 @@ button:disabled {
   min-height: 100%;
   min-width: 0;
   border-color: color-mix(in srgb, var(--card-accent, var(--line-strong)) 55%, var(--line) 45%);
+  transition:
+    border-color 360ms ease,
+    background-color 360ms ease,
+    box-shadow 360ms ease,
+    opacity 360ms ease;
 }
 
 .player-card-own {
@@ -854,6 +938,75 @@ button:disabled {
 .compact-button {
   width: auto;
   max-width: none;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sectionRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes announcementDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes timerPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes ambientFloat {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(14px, -10px, 0) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @media (max-width: 1024px) {

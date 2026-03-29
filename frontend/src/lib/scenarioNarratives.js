@@ -37,6 +37,19 @@ function parseNarrative(raw) {
     sections[current] = sections[current] ? `${sections[current]} ${trimmed}` : trimmed
   })
 
+  if (!sections.opening && !sections.explanation && !sections.endingWin && !sections.endingLoss) {
+    return {
+      opening: raw
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .join(' '),
+      explanation: '',
+      endingWin: '',
+      endingLoss: '',
+    }
+  }
+
   return sections
 }
 

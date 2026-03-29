@@ -67,7 +67,10 @@ export function startLobbyGame(lobby) {
   const catastrophe = randomItem(CATASTROPHES)
   const scenario = pickScenarioForCatastrophe(catastrophe.name)
   const bunker = randomItem(BUNKERS)
-  const survivorsNeeded = getSurvivorTarget(lobby.players.length)
+  const survivorsNeeded = Math.max(
+    1,
+    Math.min(getSurvivorTarget(lobby.players.length), lobby.players.length || 1),
+  )
   const { baseThreshold, finalThreshold } = calculateThreshold(
     survivorsNeeded,
     catastrophe.modifier,
@@ -289,6 +292,75 @@ export function getVisibleCards(viewerId, player, revealEverything = false) {
       return [category, visible ? player.cards[category] : null]
     }),
   )
+}
+
+export function pauseDiscussion(lobby, now = Date.now()) {
+  if (!lobby?.game || lobby.game.currentRound.phase !== 'discussion') {
+    return lobby
+  }
+
+  const { discussionEndsAt } = lobby.game.currentRound
+  if (!discussionEndsAt) {
+    return lobby
+  }
+
+  const remainingMs = Math.max(0, discussionEndsAt - now)
+
+  return {
+    ...lobby,
+    game: {
+      ...lobby.game,
+      currentRound: {
+        ...lobby.game.currentRound,
+        discussionEndsAt: null,
+        discussionPausedRemaining: remainingMs,
+      },
+    },
+  }
+}
+
+export function resumeDiscussion(lobby, now = Date.now()) {
+  if (!lobby?.game || lobby.game.currentRound.phase !== 'discussion') {
+    return lobby
+  }
+
+  if (lobby.game.currentRound.discussionEndsAt) {
+    return lobby
+  }
+
+  const remainingMs =
+    lobby.game.currentRound.discussionPausedRemaining ?? DISCUSSION_DURATION_MS
+
+  return {
+    ...lobby,
+    game: {
+      ...lobby.game,
+      currentRound: {
+        ...lobby.game.currentRound,
+        discussionEndsAt: now + remainingMs,
+        discussionPausedRemaining: null,
+      },
+    },
+  }
+}
+
+export function skipToVoting(lobby) {
+  if (!lobby?.game || lobby.game.currentRound.phase !== 'discussion') {
+    return lobby
+  }
+
+  return {
+    ...lobby,
+    game: {
+      ...lobby.game,
+      currentRound: {
+        ...lobby.game.currentRound,
+        phase: 'voting',
+        discussionEndsAt: null,
+        discussionPausedRemaining: null,
+      },
+    },
+  }
 }
 
 export { CATEGORY_LABELS, REVEAL_ORDER }

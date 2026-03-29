@@ -1,10 +1,41 @@
 // ElevenLabs text-to-speech helper for the host screen.
 // Calls a backend proxy so secrets stay server-side.
 
-const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' // Rachel
+const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID
 const defaultModelId = 'eleven_multilingual_v2'
-const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || 'http://localhost:5000/api/tts'
+const defaultRemoteTts = 'https://eleven-bunkers-backend-production.up.railway.app/api/tts'
+
+const ttsEndpoint = (() => {
+  const envEndpoint = import.meta.env.VITE_TTS_ENDPOINT?.trim()
+  if (envEndpoint) return envEndpoint
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname
+    const isLocal = host === 'localhost' || host === '127.0.0.1'
+    if (isLocal) return '/api/tts'
+  }
+
+  return defaultRemoteTts
+})()
+
+function getBackendBase() {
+  if (ttsEndpoint.startsWith('http')) {
+    try {
+      return new URL(ttsEndpoint).origin
+    } catch {
+      // fall through
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+
+  return ''
+}
 let speechQueue = Promise.resolve()
+let currentAudio = null
+let currentUrl = null
 const eliminationFollowUps = [
   'Time to reveal new categories.',
   'Let us see who else will fail to earn a place in the bunker.',
@@ -20,6 +51,8 @@ function enqueueSpeech(task) {
 }
 
 async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaultModelId) {
+  console.debug('[tts] sending request', { endpoint: ttsEndpoint, voiceId, modelId })
+
   const response = await fetch(ttsEndpoint, {
     method: 'POST',
     headers: {
@@ -34,10 +67,12 @@ async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaul
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '')
+    console.error('[tts] request failed', { status: response.status, detail })
     throw new Error(`ElevenLabs TTS failed (${response.status}): ${detail}`)
   }
 
   const arrayBuffer = await response.arrayBuffer()
+  console.debug('[tts] response ok', { bytes: arrayBuffer.byteLength })
   return new Blob([arrayBuffer], { type: 'audio/mpeg' })
 }
 
@@ -49,14 +84,87 @@ export async function playSpeech(text, options = {}) {
 
     try {
       const audio = new Audio(url)
+      currentAudio?.pause()
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl)
+      }
+
+      currentAudio = audio
+      currentUrl = url
+
+      audio.addEventListener(
+        'ended',
+        () => {
+          URL.revokeObjectURL(url)
+          if (currentAudio === audio) {
+            currentAudio = null
+            currentUrl = null
+          }
+        },
+        { once: true },
+      )
+
       await audio.play()
-      audio.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true })
       return audio
     } catch (error) {
       URL.revokeObjectURL(url)
       throw error
     }
   })
+}
+
+export function pauseCurrentSpeech() {
+  if (currentAudio && !currentAudio.paused) {
+    currentAudio.pause()
+  }
+}
+
+export function resumeCurrentSpeech() {
+  if (currentAudio && currentAudio.paused) {
+    return currentAudio.play()
+  }
+
+  return Promise.resolve()
+}
+
+export function stopCurrentSpeech() {
+  if (!currentAudio) {
+    return
+  }
+
+  try {
+    currentAudio.pause()
+    currentAudio.currentTime = currentAudio.duration || 0
+  } catch {
+    // ignore
+  }
+
+  if (currentUrl) {
+    URL.revokeObjectURL(currentUrl)
+  }
+
+  currentAudio = null
+  currentUrl = null
+}
+
+export async function pingBackendHealth() {
+  const base = getBackendBase()
+
+  if (!base) {
+    console.warn('[tts] backend base unresolved; skipping health ping')
+    return
+  }
+
+  const url = `${base}/health`
+  console.debug('[tts] pinging backend health', { url })
+
+  try {
+    const res = await fetch(url, { method: 'GET' })
+    const ok = res.ok
+    console.info('[tts] backend health response', { status: res.status, ok })
+  } catch (error) {
+    console.error('[tts] backend health ping failed', { message: error?.message })
+  }
 }
 
 export function buildScenarioNarration(game) {
