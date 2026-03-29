@@ -751,12 +751,19 @@ button:disabled {
   line-height: 1.5;
 }
 
+.round-copy-result {
+  font-size: clamp(1.35rem, 3.8vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
 .round-copy-success {
   color: #b9e28c;
 }
 
 .round-copy-danger {
-  color: #e0a39a;
+  color: #f0a39a;
 }
 
 .round-copy-muted {
@@ -768,6 +775,10 @@ button:disabled {
   align-items: center;
   gap: 0.9rem;
   flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 1.05rem;
 }
 
 .vote-grid {

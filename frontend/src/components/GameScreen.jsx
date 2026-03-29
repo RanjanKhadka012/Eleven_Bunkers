@@ -244,9 +244,17 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
             <span className={`phase-pill ${game.survived ? 'phase-pill-success' : 'phase-pill-danger'}`}>
               {game.finalScore} / {game.finalThreshold}
             </span>
-            <p className="round-copy">
-              {game.survived ? 'Humanity survives.' : 'Total failure.'} All surviving cards are
-              now fully visible.
+            <p
+              className={`round-copy round-copy-result ${
+                game.survived ? 'round-copy-success' : 'round-copy-danger'
+              }`}
+            >
+              {game.survived
+                ? 'The chances of survival are high.'
+                : 'The chances of survival are low.'}
+            </p>
+            <p className="round-copy round-copy-muted">
+              All surviving cards are now fully visible.
             </p>
           </div>
         </section>
