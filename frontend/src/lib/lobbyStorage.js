@@ -1,6 +1,20 @@
 export const MIN_PLAYERS = 1
 export const MAX_PLAYERS = 12
-const lobbyEndpoint = '/api/lobbies'
+
+const defaultRemoteLobby = 'https://eleven-bunkers-backend-production.up.railway.app/api/lobbies'
+
+const lobbyEndpoint = (() => {
+  const envEndpoint = import.meta.env.VITE_LOBBY_ENDPOINT?.trim()
+  if (envEndpoint) return envEndpoint
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname
+    const isLocal = host === 'localhost' || host === '127.0.0.1'
+    if (isLocal) return '/api/lobbies'
+  }
+
+  return defaultRemoteLobby
+})()
 
 async function fetchJson(url, options) {
   const response = await fetch(url, {
