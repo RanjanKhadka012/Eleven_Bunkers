@@ -6,15 +6,24 @@ import { ttsHandler } from './api/tts.js'
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 5001
-app.use(
-  cors({
-    origin: true,
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-)
-app.options('*', cors())
+const port = Number(process.env.PORT) || 8080 || 5000 ||5001
+const allowList = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((value) => value.trim()).filter(Boolean)
+  : null
+
+const corsOptions = {
+  origin: allowList && allowList.length > 0 ? allowList : true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}
+
+console.log('[config] starting backend', {
+  port,
+  corsOrigins: corsOptions.origin,
+})
+
+app.use(cors(corsOptions))
+app.options('*', cors(corsOptions))
 app.use(express.json({ limit: '1mb' }))
 
 app.post('/api/tts', ttsHandler)
@@ -27,6 +36,7 @@ app.use((req, res) => {
 
 const server = app.listen(port, () => {
   console.log(`Backend listening on port ${port}`)
+  console.log('Server has started and is ready to receive requests')
 })
 
 server.on('error', (error) => {
