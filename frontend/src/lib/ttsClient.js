@@ -35,6 +35,8 @@ function enqueueSpeech(task) {
 }
 
 async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaultModelId) {
+  console.debug('[tts] sending request', { endpoint: ttsEndpoint, voiceId, modelId })
+
   const response = await fetch(ttsEndpoint, {
     method: 'POST',
     headers: {
@@ -49,10 +51,12 @@ async function synthesizeToBlob(text, voiceId = defaultVoiceId, modelId = defaul
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '')
+    console.error('[tts] request failed', { status: response.status, detail })
     throw new Error(`ElevenLabs TTS failed (${response.status}): ${detail}`)
   }
 
   const arrayBuffer = await response.arrayBuffer()
+  console.debug('[tts] response ok', { bytes: arrayBuffer.byteLength })
   return new Blob([arrayBuffer], { type: 'audio/mpeg' })
 }
 
