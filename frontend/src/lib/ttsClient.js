@@ -3,7 +3,20 @@
 
 const defaultVoiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID
 const defaultModelId = 'eleven_multilingual_v2'
-const ttsEndpoint = import.meta.env.VITE_TTS_ENDPOINT || '/api/tts'
+const defaultRemoteTts = 'https://eleven-bunkers-backend-production.up.railway.app/api/tts'
+
+const ttsEndpoint = (() => {
+  const envEndpoint = import.meta.env.VITE_TTS_ENDPOINT?.trim()
+  if (envEndpoint) return envEndpoint
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname
+    const isLocal = host === 'localhost' || host === '127.0.0.1'
+    if (isLocal) return '/api/tts'
+  }
+
+  return defaultRemoteTts
+})()
 let speechQueue = Promise.resolve()
 let currentAudio = null
 let currentUrl = null
