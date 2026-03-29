@@ -17,9 +17,8 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   createLobby,
-  readLobbies,
+  readLobby,
   saveLobby,
-  writeLobbies,
 } from './lib/lobbyStorage'
 import './styles/app.css'
 
@@ -36,34 +35,51 @@ function App() {
       return undefined
     }
 
-    const syncLobby = () => {
-      const storedLobby = readLobbies()[session.code]
-      const nextLobby = storedLobby ? advanceDiscussionPhase(storedLobby) : storedLobby
+    let cancelled = false
+    let running = false
 
-      if (storedLobby && nextLobby !== storedLobby) {
-        saveLobby(nextLobby)
+    const syncLobby = async () => {
+      if (running) return
+      running = true
+
+      try {
+        const storedLobby = await readLobby(session.code)
+        const nextLobby = storedLobby ? advanceDiscussionPhase(storedLobby) : storedLobby
+
+        if (storedLobby && nextLobby !== storedLobby) {
+          await saveLobby(nextLobby)
+        }
+
+        if (!nextLobby) {
+          if (!cancelled) {
+            setMessage('This lobby is no longer available.')
+            setSession(null)
+            setScreen('home')
+          }
+          return
+        }
+
+        if (nextLobby.status === 'in_progress' || nextLobby.status === 'completed') {
+          setScreen('game')
+        }
+
+        if (!cancelled) {
+          setSession((current) => ({
+            ...current,
+            lobby: nextLobby,
+          }))
+        }
+      } finally {
+        running = false
       }
-
-      if (!nextLobby) {
-        setMessage('This lobby is no longer available.')
-        setSession(null)
-        setScreen('home')
-        return
-      }
-
-      if (nextLobby.status === 'in_progress' || nextLobby.status === 'completed') {
-        setScreen('game')
-      }
-
-      setSession((current) => ({
-        ...current,
-        lobby: nextLobby,
-      }))
     }
 
     syncLobby()
     const intervalId = window.setInterval(syncLobby, 1000)
-    return () => window.clearInterval(intervalId)
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
   }, [session?.code])
 
   const lobby = session?.lobby ?? null
@@ -99,20 +115,24 @@ function App() {
     setCopied(false)
   }
 
-  const handleHostGame = () => {
-    const lobbyData = createLobby()
-    setSession({
-      code: lobbyData.code,
-      playerId: lobbyData.hostId,
-      isHost: true,
-      lobby: lobbyData,
-    })
-    setMessage('')
-    setCopied(false)
-    setScreen('lobby')
+  const handleHostGame = async () => {
+    try {
+      const lobbyData = await createLobby()
+      setSession({
+        code: lobbyData.code,
+        playerId: lobbyData.hostId,
+        isHost: true,
+        lobby: lobbyData,
+      })
+      setMessage('')
+      setCopied(false)
+      setScreen('lobby')
+    } catch (error) {
+      setMessage(error?.message || 'Failed to create lobby')
+    }
   }
 
-  const handleJoinGame = () => {
+  const handleJoinGame = async () => {
     const normalizedCode = joinCode.trim().toUpperCase()
     const normalizedName = playerName.trim()
 
@@ -126,8 +146,14 @@ function App() {
       return
     }
 
-    const lobbies = readLobbies()
-    const targetLobby = lobbies[normalizedCode]
+    let targetLobby = null
+
+    try {
+      targetLobby = await readLobby(normalizedCode)
+    } catch (error) {
+      setMessage(error?.message || 'Unable to load lobby')
+      return
+    }
 
     if (!targetLobby) {
       setMessage('Lobby not found.')
@@ -157,8 +183,12 @@ function App() {
       ],
     }
 
-    lobbies[normalizedCode] = updatedLobby
-    writeLobbies(lobbies)
+    try {
+      await saveLobby(updatedLobby)
+    } catch (error) {
+      setMessage(error?.message || 'Unable to join lobby')
+      return
+    }
 
     setSession({
       code: normalizedCode,
@@ -170,17 +200,21 @@ function App() {
     setScreen('lobby')
   }
 
-  const handleStartGame = () => {
+  const handleStartGame = async () => {
     if (!lobby || !canStart) {
       return
     }
 
-    const updatedLobby = saveLobby(startLobbyGame(lobby))
-    setSession((current) => ({
-      ...current,
-      lobby: updatedLobby,
-    }))
-    setScreen('game')
+    try {
+      const updatedLobby = await saveLobby(startLobbyGame(lobby))
+      setSession((current) => ({
+        ...current,
+        lobby: updatedLobby,
+      }))
+      setScreen('game')
+    } catch (error) {
+      setMessage(error?.message || 'Failed to start game')
+    }
   }
 
   const handleCopyCode = async () => {
@@ -197,64 +231,84 @@ function App() {
     }
   }
 
-  const handleRevealCategory = (category) => {
+  const handleRevealCategory = async (category) => {
     if (!lobby || !session?.playerId || !category) {
       return
     }
 
-    const updatedLobby = saveLobby(revealForPlayer(lobby, session.playerId, category))
-    setSession((current) => ({
-      ...current,
-      lobby: updatedLobby,
-    }))
+    try {
+      const updatedLobby = await saveLobby(revealForPlayer(lobby, session.playerId, category))
+      setSession((current) => ({
+        ...current,
+        lobby: updatedLobby,
+      }))
+    } catch (error) {
+      setMessage(error?.message || 'Failed to submit reveal')
+    }
   }
 
-  const handleSubmitVote = (targetId) => {
+  const handleSubmitVote = async (targetId) => {
     if (!lobby || !session?.playerId) {
       return
     }
 
-    const updatedLobby = saveLobby(castVoteForPlayer(lobby, session.playerId, targetId))
-    setSession((current) => ({
-      ...current,
-      lobby: updatedLobby,
-    }))
+    try {
+      const updatedLobby = await saveLobby(castVoteForPlayer(lobby, session.playerId, targetId))
+      setSession((current) => ({
+        ...current,
+        lobby: updatedLobby,
+      }))
+    } catch (error) {
+      setMessage(error?.message || 'Failed to submit vote')
+    }
   }
 
-  const handlePauseDiscussion = () => {
+  const handlePauseDiscussion = async () => {
     if (!lobby) {
       return
     }
 
-    const updatedLobby = saveLobby(pauseDiscussion(lobby))
-    setSession((current) => ({
-      ...current,
-      lobby: updatedLobby,
-    }))
+    try {
+      const updatedLobby = await saveLobby(pauseDiscussion(lobby))
+      setSession((current) => ({
+        ...current,
+        lobby: updatedLobby,
+      }))
+    } catch (error) {
+      setMessage(error?.message || 'Failed to pause discussion')
+    }
   }
 
-  const handleResumeDiscussion = () => {
+  const handleResumeDiscussion = async () => {
     if (!lobby) {
       return
     }
 
-    const updatedLobby = saveLobby(resumeDiscussion(lobby))
-    setSession((current) => ({
-      ...current,
-      lobby: updatedLobby,
-    }))
+    try {
+      const updatedLobby = await saveLobby(resumeDiscussion(lobby))
+      setSession((current) => ({
+        ...current,
+        lobby: updatedLobby,
+      }))
+    } catch (error) {
+      setMessage(error?.message || 'Failed to resume discussion')
+    }
   }
 
-  const handleSkipToVoting = () => {
+  const handleSkipToVoting = async () => {
     if (!lobby) {
       return
     }
 
-    const updatedLobby = saveLobby(skipToVoting(lobby))
-    setSession((current) => ({
-      ...current,
-      lobby: updatedLobby,
-    }))
+    try {
+      const updatedLobby = await saveLobby(skipToVoting(lobby))
+      setSession((current) => ({
+        ...current,
+        lobby: updatedLobby,
+      }))
+    } catch (error) {
+      setMessage(error?.message || 'Failed to skip to voting')
+    }
   }
 
   return (

@@ -1,25 +1,21 @@
-export const STORAGE_KEY = 'bunker_lobbies_v1'
 export const MIN_PLAYERS = 1
 export const MAX_PLAYERS = 12
+const lobbyEndpoint = '/api/lobbies'
 
-export function readLobbies() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
-  } catch {
-    return {}
+async function fetchJson(url, options) {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...options,
+  })
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '')
+    throw new Error(`Lobby request failed (${response.status}): ${detail}`)
   }
-}
 
-export function writeLobbies(lobbies) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lobbies))
-}
-
-export function saveLobby(lobby) {
-  const lobbies = readLobbies()
-  lobbies[lobby.code] = lobby
-  writeLobbies(lobbies)
-  return lobby
+  return response.json()
 }
 
 function generateCode() {
@@ -27,24 +23,30 @@ function generateCode() {
   return Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('')
 }
 
-export function createLobby() {
-  const lobbies = readLobbies()
-  let code = generateCode()
-  const hostId = `host-${Date.now()}`
+export async function createLobby() {
+  return fetchJson(lobbyEndpoint, { method: 'POST' })
+}
 
-  while (lobbies[code]) {
-    code = generateCode()
+export async function readLobby(code) {
+  if (!code) return null
+
+  try {
+    return await fetchJson(`${lobbyEndpoint}/${code}`, { method: 'GET' })
+  } catch (error) {
+    if (String(error?.message || '').includes('404')) {
+      return null
+    }
+    throw error
+  }
+}
+
+export async function saveLobby(lobby) {
+  if (!lobby?.code) {
+    throw new Error('Lobby code required')
   }
 
-  const lobby = {
-    code,
-    status: 'waiting',
-    hostId,
-    hostName: 'Host',
-    players: [],
-  }
-
-  lobbies[code] = lobby
-  writeLobbies(lobbies)
-  return lobby
+  return fetchJson(`${lobbyEndpoint}/${lobby.code}`, {
+    method: 'PUT',
+    body: JSON.stringify(lobby),
+  })
 }
