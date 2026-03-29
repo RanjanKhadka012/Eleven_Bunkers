@@ -7,8 +7,11 @@ import LobbyScreen from './components/LobbyScreen'
 import {
   advanceDiscussionPhase,
   castVoteForPlayer,
+  pauseDiscussion,
   revealForPlayer,
+  resumeDiscussion,
   startLobbyGame,
+  skipToVoting,
 } from './lib/gameEngine'
 import {
   MAX_PLAYERS,
@@ -77,6 +80,10 @@ function App() {
     }
 
     if (playerCount < MIN_PLAYERS) {
+      if (MIN_PLAYERS === 1) {
+        return 'Waiting for at least 1 player to join.'
+      }
+
       return `Waiting for at least ${MIN_PLAYERS} players to join.`
     }
 
@@ -214,6 +221,42 @@ function App() {
     }))
   }
 
+  const handlePauseDiscussion = () => {
+    if (!lobby) {
+      return
+    }
+
+    const updatedLobby = saveLobby(pauseDiscussion(lobby))
+    setSession((current) => ({
+      ...current,
+      lobby: updatedLobby,
+    }))
+  }
+
+  const handleResumeDiscussion = () => {
+    if (!lobby) {
+      return
+    }
+
+    const updatedLobby = saveLobby(resumeDiscussion(lobby))
+    setSession((current) => ({
+      ...current,
+      lobby: updatedLobby,
+    }))
+  }
+
+  const handleSkipToVoting = () => {
+    if (!lobby) {
+      return
+    }
+
+    const updatedLobby = saveLobby(skipToVoting(lobby))
+    setSession((current) => ({
+      ...current,
+      lobby: updatedLobby,
+    }))
+  }
+
   return (
     <div className="app-shell">
       <div className="ambient ambient-one" />
@@ -254,7 +297,13 @@ function App() {
 
       {screen === 'game' && lobby?.game && session && (
         session.isHost ? (
-          <HostGameScreen lobby={lobby} onLeaveGame={resetHome} />
+          <HostGameScreen
+            lobby={lobby}
+            onPauseDiscussion={handlePauseDiscussion}
+            onResumeDiscussion={handleResumeDiscussion}
+            onSkipToVoting={handleSkipToVoting}
+            onLeaveGame={resetHome}
+          />
         ) : (
           <GameScreen
             lobby={lobby}

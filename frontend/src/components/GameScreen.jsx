@@ -30,6 +30,8 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
   const [timeUpNotice, setTimeUpNotice] = useState(false)
   const [discussionNow, setDiscussionNow] = useState(Date.now())
   const previousPhaseRef = useRef(currentRound.phase)
+  const isDiscussionPhase = currentRound.phase === 'discussion'
+  const isDiscussionPaused = isDiscussionPhase && !currentRound.discussionEndsAt
 
   const revealChoices = useMemo(() => {
     if (!currentPlayer) {
@@ -116,10 +118,12 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
     return undefined
   }, [currentRound.phase])
 
-  const discussionSecondsLeft =
-    currentRound.phase === 'discussion' && currentRound.discussionEndsAt
-      ? Math.max(0, Math.ceil((currentRound.discussionEndsAt - discussionNow) / 1000))
-      : 0
+  const discussionMillisRemaining = isDiscussionPhase
+    ? currentRound.discussionEndsAt
+      ? Math.max(0, currentRound.discussionEndsAt - discussionNow)
+      : currentRound.discussionPausedRemaining ?? 0
+    : 0
+  const discussionSecondsLeft = Math.ceil(discussionMillisRemaining / 1000)
 
   const formattedDiscussionTime = `${String(Math.floor(discussionSecondsLeft / 60)).padStart(
     2,
@@ -167,10 +171,10 @@ function GameScreen({ lobby, session, onRevealCategory, onSubmitVote, onLeaveGam
         </div>
       </section>
 
-      {currentRound.phase === 'discussion' && (
+      {isDiscussionPhase && (
         <section className="discussion-timer">
           <span className="info-label">Discussion Timer</span>
-          <strong>{formattedDiscussionTime}</strong>
+          <strong>{isDiscussionPaused ? 'Paused' : formattedDiscussionTime}</strong>
         </section>
       )}
 
